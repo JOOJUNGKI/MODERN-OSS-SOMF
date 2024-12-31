@@ -1,2 +1,3 @@
 rootProject.name = 'workflow-system'
-include 'workflow-service', 'workflow-acl-service'
+include 'workflow-service', 'workflow-acl-service', 'provisioning-service'
+

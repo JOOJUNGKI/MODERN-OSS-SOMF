@@ -1,0 +1,4 @@
+dependencies {
+    // 필요한 추가 의존성이 있다면 여기에 추가
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+}
