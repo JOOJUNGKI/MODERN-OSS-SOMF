@@ -4,6 +4,8 @@
 - docker ps
 - kafka ui 에 접속해서 topic 확인
 -  http://localhost:8989/
+- postgrlsql 접속으로 DB 확인
+- localhost, 5432, database:workflow_db 에서 데이터 확인 SELECT * FROM workflows wf; SELECT * FROM step_histories sh ; 
 - 필요 시 docker-compose down 후 docker-compose up -d
 
 3. workflow-acl-service를 실행하면 http://localhost:8081/swagger-ui.html 에 접속 가능함
