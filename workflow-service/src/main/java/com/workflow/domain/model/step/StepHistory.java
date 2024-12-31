@@ -1,3 +1,4 @@
+// File: myprj6/workflow-service/src/main/java/com/workflow/domain/model/step/StepHistory.java
 package com.workflow.domain.model.step;
 
 import lombok.Builder;
@@ -13,6 +14,13 @@ public class StepHistory {
    private LocalDateTime endTime;
 
    public void complete() {
-       this.endTime = LocalDateTime.now();
+      if (this.endTime != null) {
+         throw new IllegalStateException("Step already completed");
+      }
+      this.endTime = LocalDateTime.now();
+   }
+
+   public boolean isCompleted() {
+      return this.endTime != null;
    }
 }

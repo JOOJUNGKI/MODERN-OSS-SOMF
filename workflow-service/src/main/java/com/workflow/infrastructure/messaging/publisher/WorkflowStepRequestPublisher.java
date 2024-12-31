@@ -1,4 +1,4 @@
-
+// File: myprj6/workflow-service/src/main/java/com/workflow/infrastructure/messaging/publisher/WorkflowStepRequestPublisher.java
 package com.workflow.infrastructure.messaging.publisher;
 
 import com.workflow.domain.event.WorkflowStepEvent;
@@ -15,25 +15,27 @@ import java.time.LocalDateTime;
 @Component
 @RequiredArgsConstructor
 public class WorkflowStepRequestPublisher {
-   private final KafkaTemplate<String, WorkflowStepEvent> kafkaTemplate;
-   
-   @Value("${kafka.topics.step.request}")
-   private String requestTopic;
+    private final KafkaTemplate<String, WorkflowStepEvent> kafkaTemplate;
 
-   public void publishStepRequest(Workflow workflow) {
-       WorkflowStepEvent event = WorkflowStepEvent.builder()
-               .workflowId(workflow.getId())
-               .stepType(workflow.getCurrentStep())
-               .timestamp(LocalDateTime.now())
-               .build();
+    @Value("${kafka.topics.step.request}")
+    private String requestTopic;
 
-       kafkaTemplate.send(requestTopic, workflow.getId(), event)
-               .whenComplete((result, ex) -> {
-                   if (ex == null) {
-                       log.debug("Successfully sent step request: {}", event);
-                   } else {
-                       log.error("Failed to send step request: {}", event, ex);
-                   }
-               });
-   }
+    public void publishStepRequest(Workflow workflow) {
+        workflow.getActiveSteps().forEach(stepType -> {
+            WorkflowStepEvent event = WorkflowStepEvent.builder()
+                    .workflowId(workflow.getId())
+                    .stepType(stepType)
+                    .timestamp(LocalDateTime.now())
+                    .build();
+
+            kafkaTemplate.send(requestTopic, workflow.getId(), event)
+                    .whenComplete((result, ex) -> {
+                        if (ex == null) {
+                            log.debug("Successfully sent step request: {}", event);
+                        } else {
+                            log.error("Failed to send step request: {}", event, ex);
+                        }
+                    });
+        });
+    }
 }
