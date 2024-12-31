@@ -26,7 +26,7 @@ public class WorkflowController {
         return ResponseEntity.ok(workflowService.getWorkflow(workflowId));
     }
 
-    @GetMapping("/{orderNumber}")
+    @GetMapping("/order/{orderNumber}")
     @Operation(summary = "오더번호 워크플로우 조회")
     public ResponseEntity<WorkflowResponse> getWorkflowWithOrderNumber(@PathVariable String orderNumber) {
         return ResponseEntity.ok(workflowService.getWorkflowWithOrderNumber(orderNumber));
