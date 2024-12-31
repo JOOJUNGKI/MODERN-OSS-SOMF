@@ -25,6 +25,13 @@ public class WorkflowStepRequestPublisher {
             WorkflowStepEvent event = WorkflowStepEvent.builder()
                     .workflowId(workflow.getId())
                     .stepType(stepType)
+                    // 추가되는 필드들
+                    .orderNumber(workflow.getOrderNumber())
+                    .orderSeq(workflow.getOrderSeq())
+                    .serviceType(workflow.getServiceType())
+                    .orderType(workflow.getOrderType())
+                    .custName(workflow.getCustName())
+                    .address(workflow.getAddress())
                     .timestamp(LocalDateTime.now())
                     .build();
 
