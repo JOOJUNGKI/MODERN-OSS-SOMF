@@ -3,9 +3,9 @@ package com.workflow.domain.service;
 
 import com.workflow.api.dto.WorkflowHistoryResponse;
 import com.workflow.api.dto.WorkflowResponse;
+import com.workflow.common.event.StepType;
+import com.workflow.common.event.WorkflowCreationEvent;
 import com.workflow.common.exception.WorkflowNotFoundException;
-import com.workflow.domain.event.WorkflowCreationEvent;
-import com.workflow.domain.model.step.StepType;
 import com.workflow.domain.model.workflow.Workflow;
 import com.workflow.domain.model.workflow.WorkflowStatus;
 import com.workflow.infrastructure.messaging.publisher.WorkflowStepRequestPublisher;

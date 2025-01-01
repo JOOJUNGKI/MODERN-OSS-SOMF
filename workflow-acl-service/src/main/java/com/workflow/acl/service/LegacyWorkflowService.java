@@ -1,8 +1,7 @@
-
 package com.workflow.acl.service;
 
 import com.workflow.acl.api.dto.LegacyWorkflowRequest;
-import com.workflow.acl.event.WorkflowCreationEvent;
+import com.workflow.common.event.WorkflowCreationEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,14 +16,23 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class LegacyWorkflowService {
     private final KafkaTemplate<String, WorkflowCreationEvent> kafkaTemplate;
-    
+
     @Value("${kafka.topics.creation.request}")
     private String creationTopic;
-    
+
     public String requestWorkflowCreation(LegacyWorkflowRequest request) {
         String requestId = UUID.randomUUID().toString();
         WorkflowCreationEvent event = createEvent(requestId, request);
-        sendToKafka(event);
+
+        kafkaTemplate.send(creationTopic, requestId, event)
+                .whenComplete((result, ex) -> {
+                    if (ex == null) {
+                        log.debug("Successfully sent event: {}", event);
+                    } else {
+                        log.error("Failed to send event: {}", event, ex);
+                    }
+                });
+
         return requestId;
     }
 
@@ -39,16 +47,5 @@ public class LegacyWorkflowService {
                 .address(request.getAddress())
                 .timestamp(LocalDateTime.now())
                 .build();
-    }
-
-    private void sendToKafka(WorkflowCreationEvent event) {
-        kafkaTemplate.send(creationTopic, event.getRequestId(), event)
-            .whenComplete((result, ex) -> {
-                if (ex != null) {
-                    log.error("Failed to send event: {}", event, ex);
-                } else {
-                    log.debug("Successfully sent event: {}", event);
-                }
-            });
     }
 }

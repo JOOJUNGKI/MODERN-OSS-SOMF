@@ -1,5 +1,6 @@
 package com.workflow.provisioning.domain.model.step;
 
+import com.workflow.common.event.StepType;
 import com.workflow.provisioning.domain.model.lob.LobType;
 import lombok.Builder;
 import lombok.Getter;

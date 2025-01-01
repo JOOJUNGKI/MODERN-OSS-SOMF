@@ -1,9 +1,7 @@
-// File: myprj6/workflow-service/src/main/java/com/workflow/infrastructure/messaging/consumer/WorkflowStepResponseConsumer.java
 package com.workflow.infrastructure.messaging.consumer;
 
-import com.workflow.domain.event.WorkflowStepEvent;
-import com.workflow.domain.model.step.StepType;
 import com.workflow.domain.service.WorkflowService;
+import com.workflow.common.event.WorkflowStepEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -15,20 +13,20 @@ import org.springframework.stereotype.Component;
 public class WorkflowStepResponseConsumer {
     private final WorkflowService workflowService;
 
-    @KafkaListener(topics = "${kafka.topics.step.response}")
+    @KafkaListener(
+            topics = "${kafka.topics.step.response}",
+            containerFactory = "workflowStepKafkaListenerContainerFactory"
+    )
     public void handleStepResponse(WorkflowStepEvent event) {
         log.debug("Received step response: {}", event);
         try {
             workflowService.handleStepCompletion(
                     event.getWorkflowId(),
                     event.getStepType()
-                    //,event.getPayload()
             );
-            log.info("Successfully processed step completion for workflow: {}",
-                    event.getWorkflowId());
+            log.info("Successfully processed step completion for workflow: {}", event.getWorkflowId());
         } catch (Exception e) {
-            log.error("Failed to process step completion for workflow: {}",
-                    event.getWorkflowId(), e);
+            log.error("Failed to process step completion for workflow: {}", event.getWorkflowId(), e);
         }
     }
 }

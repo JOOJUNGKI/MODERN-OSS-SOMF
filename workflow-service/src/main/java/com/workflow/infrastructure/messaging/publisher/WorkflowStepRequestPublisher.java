@@ -1,10 +1,10 @@
-// File: myprj6/workflow-service/src/main/java/com/workflow/infrastructure/messaging/publisher/WorkflowStepRequestPublisher.java
 package com.workflow.infrastructure.messaging.publisher;
 
-import com.workflow.domain.event.WorkflowStepEvent;
+import com.workflow.common.event.WorkflowStepEvent;
+import com.workflow.common.event.StepType;  // common 모듈의 StepType 사용
 import com.workflow.domain.model.workflow.Workflow;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
@@ -13,19 +13,24 @@ import java.time.LocalDateTime;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class WorkflowStepRequestPublisher {
     private final KafkaTemplate<String, WorkflowStepEvent> kafkaTemplate;
 
     @Value("${kafka.topics.step.request}")
     private String requestTopic;
 
+    public WorkflowStepRequestPublisher(@Qualifier("workflowKafkaTemplate") KafkaTemplate<String, WorkflowStepEvent> kafkaTemplate) {
+        this.kafkaTemplate = kafkaTemplate;
+    }
+
     public void publishStepRequest(Workflow workflow) {
         workflow.getActiveSteps().forEach(stepType -> {
+            // StepType 변환이 필요할 수 있음
+            StepType commonStepType = StepType.valueOf(stepType.name());
+
             WorkflowStepEvent event = WorkflowStepEvent.builder()
                     .workflowId(workflow.getId())
-                    .stepType(stepType)
-                    // 추가되는 필드들
+                    .stepType(commonStepType)
                     .orderNumber(workflow.getOrderNumber())
                     .orderSeq(workflow.getOrderSeq())
                     .serviceType(workflow.getServiceType())

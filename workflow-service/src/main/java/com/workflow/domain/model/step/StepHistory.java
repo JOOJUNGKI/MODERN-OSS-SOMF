@@ -1,6 +1,6 @@
-// File: myprj6/workflow-service/src/main/java/com/workflow/domain/model/step/StepHistory.java
-package com.workflow.domain.model.step;
+package com.workflow.domain.model.step;// File: myprj6/workflow-service/src/main/java/com/workflow/domain/model/step/StepHistory.java
 
+import com.workflow.common.event.StepType;
 import lombok.Builder;
 import lombok.Getter;
 

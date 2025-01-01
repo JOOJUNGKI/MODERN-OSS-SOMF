@@ -1,6 +1,6 @@
 package com.workflow.provisioning.infrastructure.persistence.repository;
 
-import com.workflow.provisioning.domain.model.step.StepType;
+import com.workflow.common.event.StepType;
 import com.workflow.provisioning.infrastructure.persistence.entity.StepHistoryEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

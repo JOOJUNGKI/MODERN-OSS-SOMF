@@ -1,7 +1,6 @@
 package com.workflow.infrastructure.messaging.consumer;
 
-import com.workflow.api.dto.WorkflowResponse;
-import com.workflow.domain.event.WorkflowCreationEvent;
+import com.workflow.common.event.WorkflowCreationEvent;
 import com.workflow.domain.model.workflow.Workflow;
 import com.workflow.domain.service.WorkflowService;
 import com.workflow.infrastructure.messaging.publisher.WorkflowStepRequestPublisher;

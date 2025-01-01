@@ -2,7 +2,7 @@
 package com.workflow.domain.model.workflow;
 
 import com.workflow.domain.model.step.StepHistory;
-import com.workflow.domain.model.step.StepType;
+import com.workflow.common.event.StepType;
 import lombok.Builder;
 import lombok.Getter;
 

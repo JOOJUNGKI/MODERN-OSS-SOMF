@@ -1,7 +1,7 @@
 
 package com.workflow.provisioning.infrastructure.persistence.mapper;
 
-import com.workflow.provisioning.domain.event.WorkflowStepEvent;
+import com.workflow.common.event.WorkflowStepEvent;
 import com.workflow.provisioning.domain.model.step.StepHistory;
 import com.workflow.provisioning.infrastructure.persistence.entity.StepHistoryEntity;
 import org.springframework.stereotype.Component;

@@ -1,6 +1,6 @@
 package com.workflow.provisioning.domain.service;
 
-import com.workflow.provisioning.domain.event.WorkflowStepEvent;
+import com.workflow.common.event.WorkflowStepEvent;
 import com.workflow.provisioning.infrastructure.messaging.publisher.WorkflowStepResponsePublisher;
 import com.workflow.provisioning.infrastructure.persistence.entity.StepHistoryEntity;
 import com.workflow.provisioning.infrastructure.persistence.mapper.StepMapper;
@@ -10,8 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Slf4j
 @Service

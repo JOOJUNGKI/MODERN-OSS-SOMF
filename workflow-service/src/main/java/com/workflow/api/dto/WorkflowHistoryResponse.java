@@ -2,7 +2,7 @@
 package com.workflow.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.workflow.domain.model.step.StepType;
+import com.workflow.common.event.StepType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;

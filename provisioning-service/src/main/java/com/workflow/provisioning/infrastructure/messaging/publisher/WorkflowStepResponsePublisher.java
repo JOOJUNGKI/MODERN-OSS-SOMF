@@ -1,12 +1,10 @@
 
 package com.workflow.provisioning.infrastructure.messaging.publisher;
 
-import com.workflow.provisioning.domain.event.WorkflowStepEvent;
-import com.workflow.provisioning.domain.service.ProvisioningService;
+import com.workflow.common.event.WorkflowStepEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 

@@ -1,13 +1,11 @@
 
 package com.workflow.provisioning.infrastructure.persistence.entity;
 
-import com.workflow.provisioning.domain.model.lob.LobType;
-import com.workflow.provisioning.domain.model.step.StepType;
+import com.workflow.common.event.StepType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 

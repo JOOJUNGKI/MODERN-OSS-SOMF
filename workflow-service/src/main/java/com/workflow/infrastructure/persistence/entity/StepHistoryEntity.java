@@ -1,7 +1,7 @@
 // File: myprj6/workflow-service/src/main/java/com/workflow/infrastructure/persistence/entity/StepHistoryEntity.java
 package com.workflow.infrastructure.persistence.entity;
 
-import com.workflow.domain.model.step.StepType;
+import com.workflow.common.event.StepType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
