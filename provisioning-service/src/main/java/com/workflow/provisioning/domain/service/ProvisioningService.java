@@ -1,6 +1,7 @@
 package com.workflow.provisioning.domain.service;
 
 import com.workflow.provisioning.domain.event.WorkflowStepEvent;
+import com.workflow.provisioning.infrastructure.messaging.publisher.WorkflowStepResponsePublisher;
 import com.workflow.provisioning.infrastructure.persistence.entity.StepHistoryEntity;
 import com.workflow.provisioning.infrastructure.persistence.mapper.StepMapper;
 import com.workflow.provisioning.infrastructure.persistence.repository.StepHistoryRepository;
@@ -10,6 +11,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Slf4j
 @Service
 @Transactional
@@ -18,9 +21,12 @@ public class ProvisioningService {
 
     private final StepHistoryRepository stepHistoryRepository;
 
+    private final WorkflowStepResponsePublisher publisher;
+
     private final StepMapper mapper;
 
     public void doProcess(WorkflowStepEvent event) {
+        log.info("[Do Process] " + event.toString());
         saveHistroy(event);
         // 대기 넣어야 함
         done(event);
@@ -33,10 +39,15 @@ public class ProvisioningService {
     @Async
     private void done(WorkflowStepEvent event) {
         try {
-            Thread.sleep(1000*30);
-            StepHistoryEntity entity = mapper.toEntity(event);
+            log.info("[DONE] " + event.toString());
+            Thread.sleep(1000*5);
+
+            StepHistoryEntity entity = stepHistoryRepository.findByWorkflowIdAndStepType(event.getWorkflowId(), event.getStepType())
+                            .orElseThrow();
+
             entity.done();
             stepHistoryRepository.save(entity);
+            publisher.publishInternetStepResponse(mapper.toEvent(entity));
         } catch (Exception ignored){
 
         }

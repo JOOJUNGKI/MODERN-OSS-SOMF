@@ -9,7 +9,7 @@ import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.KafkaAdmin;
 
 @Configuration
-public class KafkaConfig {
+public class KafkaConfig1 {
    @Value("${kafka.topics.creation.request}")
    private String creationTopic;
 

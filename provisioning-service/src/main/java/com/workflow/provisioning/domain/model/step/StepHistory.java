@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public class StepHistory {
    private final StepType stepType;
 
-   private final LobType lobType;
+   private final String serviceType;
 
    private final String orderNumber;
 

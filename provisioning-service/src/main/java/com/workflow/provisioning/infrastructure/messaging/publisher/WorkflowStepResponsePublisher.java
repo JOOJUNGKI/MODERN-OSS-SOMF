@@ -19,16 +19,30 @@ public class WorkflowStepResponsePublisher {
     @Value("${kafka.topics.iptv.step.response}")
     private String responseIptvStepTopic;
 
-   @KafkaListener(topics = "${kafka.topics.iptv.step.response}")
-   public void publishIptvStepResponse(WorkflowStepEvent event) {
-       kafkaTemplate.send(responseIptvStepTopic, event.getWorkflowId(), event)
-           .whenComplete((result, ex) -> {
-               if (ex == null) {
-                   log.debug("Successfully sent step request: {}", event);
-               } else {
-                   log.error("Failed to send step request: {}", event, ex);
-               }
-           }
-       );
-   }
+    @Value("${kafka.topics.internet.step.response}")
+    private String responseInternetStepTopic;
+
+    public void publishIptvStepResponse(WorkflowStepEvent event) {
+        kafkaTemplate.send(responseIptvStepTopic, event.getWorkflowId(), event)
+                .whenComplete((result, ex) -> {
+                            if (ex == null) {
+                                log.debug("Successfully sent step request: {}", event);
+                            } else {
+                                log.error("Failed to send step request: {}", event, ex);
+                            }
+                        }
+                );
+    }
+
+    public void publishInternetStepResponse(WorkflowStepEvent event) {
+        kafkaTemplate.send(responseInternetStepTopic, event.getWorkflowId(), event)
+                .whenComplete((result, ex) -> {
+                            if (ex == null) {
+                                log.debug("Successfully sent step request: {}", event);
+                            } else {
+                                log.error("Failed to send step request: {}", event, ex);
+                            }
+                        }
+                );
+    }
 }

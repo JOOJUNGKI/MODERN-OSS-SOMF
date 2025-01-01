@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -19,12 +18,14 @@ public class WorkflowCreationConsumer {
     private final WorkflowStepRequestPublisher stepRequestPublisher;
     private final WorkflowMapper workflowMapper;
 
-    @KafkaListener(topics = "${kafka.topics.creation.request}")
+    @KafkaListener(
+            topics = "${kafka.topics.creation.request}",
+            containerFactory = "workflowCreationKafkaListenerContainerFactory"
+    )
     public void handleWorkflowCreation(WorkflowCreationEvent event) {
         log.info("Received workflow creation request: {}", event);
         try {
             Workflow workflow = workflowService.createWorkflow(event);
-            //stepRequestPublisher.publishStepRequest(workflow);
             log.info("Successfully created workflow: {}", workflow.getId());
         } catch (Exception e) {
             log.error("Failed to create workflow for request: {}", event.getRequestId(), e);

@@ -10,10 +10,6 @@ import org.springframework.kafka.core.KafkaAdmin;
 
 @Configuration
 public class KafkaConfig {
-    
-    @Value("${kafka.topics.creation.request}")
-    private String creationTopic;
-
     @Value("${kafka.topics.iptv.step.request}")
     private String iptvStepRequestTopic;
 
