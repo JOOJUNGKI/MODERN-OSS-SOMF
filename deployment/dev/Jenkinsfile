@@ -2,8 +2,47 @@ def PIPELINE_ID = "modern-oss-${env.BUILD_NUMBER}"
 
 // 변경된 서비스 탐지 함수
 def getChangedServices() {
-    def changedFiles = sh(script: "git diff --name-only HEAD^", returnStdout: true).trim()
     def services = ['provisioning-service', 'workflow-acl-service', 'workflow-service']
+
+    // 1. 현재 레포지토리의 이전 커밋 존재 여부 확인
+    def hasPreCommit = sh(script: "git rev-parse HEAD^ >/dev/null 2>&1", returnStatus: true) == 0
+
+    // 2. Manifest 레포지토리 클론 및 Jenkins 커밋 이력 확인
+    def hasJenkinsCommit = false
+    withCredentials([usernamePassword(
+        credentialsId: 'github-credentials',
+        usernameVariable: 'GIT_USERNAME',
+        passwordVariable: 'GIT_PASSWORD'
+    )]) {
+        hasJenkinsCommit = sh(
+            script: """
+                git clone https://\${GIT_USERNAME}:\${GIT_PASSWORD}@github.com/DG-Team-LEGO/MODERN-OSS-SOMF-K8S-MANIFEST.git temp_manifest
+                cd temp_manifest
+                git log --author="Jenkins" --pretty=format:"%h" -1 >/dev/null 2>&1
+                RESULT=\$?
+                cd ..
+                rm -rf temp_manifest
+                exit \$RESULT
+            """,
+            returnStatus: true
+        ) == 0
+    }
+
+    // 최초 빌드 조건 확인:
+    // 1) 이전 커밋이 없거나
+    // 2) Manifest 레포지토리에 Jenkins의 커밋이 없는 경우
+    if (!hasPreCommit || !hasJenkinsCommit) {
+        echo "Initial build detected - processing all services"
+        if (!hasPreCommit) {
+            echo "Reason: No previous commits found in source repository"
+        }
+        if (!hasJenkinsCommit) {
+            echo "Reason: No Jenkins commits found in manifest repository"
+        }
+        return services
+    }
+
+    def changedFiles = sh(script: "git diff --name-only HEAD^", returnStdout: true).trim()
     def changedServices = []
 
     // common 모듈이 변경된 경우 모든 서비스 재빌드 필요
@@ -61,7 +100,6 @@ podTemplate(
         def props
         def imageTag = getImageTag()
         def changedServices
-
 
         stage('Start Notification') {
             slackSend (channel: '#배포', color: '#FFFF00', message: "CI STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
@@ -137,7 +175,7 @@ podTemplate(
             }
 
             stage('Trigger CD') {
-                container('gradle') { // 기존 컨테이너에서 Git 작업 수행 가능
+                container('gradle') {
                     withCredentials([usernamePassword(
                         credentialsId: 'github-credentials',
                         usernameVariable: 'GIT_USERNAME',
@@ -175,7 +213,6 @@ podTemplate(
                 }
                 checkError("CD Trigger Failed")
             }
-
 
             currentBuild.result = 'SUCCESS'
             echo "**** FINISH ALL STAGES : SUCCESS"
