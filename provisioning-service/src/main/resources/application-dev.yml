@@ -1,0 +1,64 @@
+server:
+  port: ${SERVER_PORT:8082}
+
+spring:
+  config:
+    activate:
+      on-profile: dev
+  application:
+    name: provisioning-service
+  kafka:
+    bootstrap-servers: 20.249.185.137:9092
+    consumer:
+      group-id: ${spring.application.name}-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.workflow.common.event"
+        spring.json.type.mapping: >
+          workflow-step:com.workflow.common.event.WorkflowStepEvent,
+          workflow-creation:com.workflow.common.event.WorkflowCreationEvent
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.type.mappings: >
+          workflow-step:com.workflow.common.event.WorkflowStepEvent,
+          workflow-creation:com.workflow.common.event.WorkflowCreationEvent
+
+  datasource:
+    url: ${POSTGRES_URL:jdbc:postgresql://20.249.203.242:5432/oss_db}
+    username: ${POSTGRES_USER:oss_user}
+    password: ${POSTGRES_PASSWORD:oss_pass}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+kafka:
+  topics:
+    iptv:
+      step:
+        request: ${KAFKA_TOPIC_IPTV_STEP_REQUEST:workflow.iptv.step.request}
+        response: ${KAFKA_TOPIC_IPTV_STEP_RESPONSE:workflow.iptv.step.response}
+    internet:
+      step:
+        request: ${KAFKA_TOPIC_INTERNET_STEP_REQUEST:workflow.internet.step.request}
+        response: ${KAFKA_TOPIC_INTERNET_STEP_RESPONSE:workflow.internet.step.response}
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    try-it-out-enabled: true
+
+logging:
+  level:
+    com.workflow: ${LOG_LEVEL:DEBUG}
