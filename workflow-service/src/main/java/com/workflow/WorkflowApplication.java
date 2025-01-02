@@ -6,6 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
+/* */
+
 @SpringBootApplication(scanBasePackages = {
         "com.workflow",
         "com.workflow.common"  // workflow-common의 base package
