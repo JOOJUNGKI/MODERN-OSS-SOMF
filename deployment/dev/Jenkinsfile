@@ -1,0 +1,189 @@
+def PIPELINE_ID = "modern-oss-${env.BUILD_NUMBER}"
+
+// 변경된 서비스 탐지 함수
+def getChangedServices() {
+    def changedFiles = sh(script: "git diff --name-only HEAD^", returnStdout: true).trim()
+    def services = ['provisioning-service', 'workflow-acl-service', 'workflow-service']
+    def changedServices = []
+
+    // common 모듈이 변경된 경우 모든 서비스 재빌드 필요
+    if (changedFiles.contains('workflow-common/')) {
+        return services
+    }
+
+    // 각 서비스별 변경사항 확인
+    services.each { service ->
+        if (changedFiles.contains("${service}/")) {
+            changedServices.add(service)
+        }
+    }
+
+    // 변경된 서비스가 없으면 빈 리스트 반환
+    return changedServices.size() > 0 ? changedServices : []
+}
+
+def getImageTag() {
+    def dateFormat = new java.text.SimpleDateFormat('yyyyMMddHHmmss')
+    dateFormat.setTimeZone(TimeZone.getTimeZone('Asia/Seoul'))
+    def currentDate = new Date()
+    return dateFormat.format(currentDate)
+}
+
+def checkError(message) {
+    if (currentBuild.result == "FAILURE") {
+        error "Failed: ${message}"
+    }
+}
+
+podTemplate(
+    label: "${PIPELINE_ID}",
+    serviceAccount: 'jenkins',
+    containers: [
+        containerTemplate(name: 'gradle', image: 'gradle:jdk17', ttyEnabled: true, command: 'cat'),
+        containerTemplate(name: 'podman', image: "mgoltzsche/podman", ttyEnabled: true, command: 'cat', privileged: true),
+        containerTemplate(
+            name: 'azure-cli',
+            image: 'mcr.microsoft.com/azure-cli',
+            command: 'cat',
+            ttyEnabled: true,
+            envVars: [
+                envVar(key: 'HOME', value: '/home/jenkins')
+            ]
+        )
+    ],
+    volumes: [
+        emptyDirVolume(mountPath: '/home/gradle/.gradle', memory: false),
+        emptyDirVolume(mountPath: '/root/.azure', memory: false)
+    ]
+) {
+    node(PIPELINE_ID) {
+        // Environment variables
+        def props
+        def imageTag = getImageTag()
+        def changedServices
+
+
+        stage('Start Notification') {
+            slackSend (channel: '#배포', color: '#FFFF00', message: "CI STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+        }
+
+        stage("Get Source") {
+            checkout scm
+            props = readProperties file: "deployment/deploy_env_vars"
+            // 변경된 서비스 확인
+            changedServices = getChangedServices()
+            echo "Changed services: ${changedServices}"
+
+            // 변경사항이 없으면 파이프라인 종료
+            if (changedServices.isEmpty()) {
+                currentBuild.result = 'SUCCESS'
+                echo "No service changes detected. Skipping build."
+                return
+            }
+        }
+
+        try {
+            stage('Build Applications') {
+                container('gradle') {
+                    // 변경된 서비스만 빌드
+                    changedServices.each { service ->
+                        sh """
+                            chmod +x gradlew
+                            ./gradlew :${service}:clean :${service}:build -x test
+                        """
+                    }
+                }
+                checkError("Application Build Failed")
+            }
+
+            stage('Build Container Images') {
+                container('podman') {
+                    changedServices.each { service ->
+                        def imagePath = "${props.registry}/${props.image_org}/${service}/dev"
+                        sh """
+                            podman build -f deployment/Dockerfile.${service} \
+                                -t ${imagePath}:${imageTag} \
+                                -t ${imagePath}:latest .
+                        """
+                    }
+                }
+                checkError("Container Image Build Failed")
+            }
+
+            stage('Push Container Images') {
+                container('podman') {
+                    withCredentials([usernamePassword(
+                        credentialsId: "${props.image_credential}",
+                        usernameVariable: 'USERNAME',
+                        passwordVariable: 'PASSWORD'
+                    )]) {
+                        sh """
+                            podman login ${props.registry} --username \$USERNAME --password \$PASSWORD
+                        """
+
+                        changedServices.each { service ->
+                            def imagePath = "${props.registry}/${props.image_org}/${service}/dev"
+                            sh """
+                                podman push ${imagePath}:${imageTag}
+                                podman push ${imagePath}:latest
+                            """
+                        }
+                    }
+                }
+                checkError("Container Image Push Failed")
+            }
+
+            stage('Trigger CD') {
+                container('gradle') { // 기존 컨테이너에서 Git 작업 수행 가능
+                    withCredentials([usernamePassword(
+                        credentialsId: 'github-credentials',
+                        usernameVariable: 'GIT_USERNAME',
+                        passwordVariable: 'GIT_PASSWORD'
+                    )]) {
+                        sh """
+                            # Install yq if not already installed
+                            if ! command -v yq &> /dev/null; then
+                                echo "Installing yq..."
+                                wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq
+                                chmod +x /usr/local/bin/yq
+                            fi
+
+                            # Clone repository and update manifests
+                            git clone https://\${GIT_USERNAME}:\${GIT_PASSWORD}@github.com/DG-Team-LEGO/MODERN-OSS-SOMF-K8S-MANIFEST.git
+                            cd MODERN-OSS-SOMF-K8S-MANIFEST
+
+                            changed_services="${changedServices.join(' ')}"
+                            if [ -z "\$changed_services" ]; then
+                                echo "No services to update. Skipping CD trigger."
+                                exit 0
+                            fi
+
+                            for service in \$changed_services; do
+                                yq eval ".spec.template.spec.containers[0].image = \\"${props.registry}/${props.image_org}/dev/\${service}:${imageTag}\\"" -i overlays/dev/\${service}/deployment.yaml
+                            done
+
+                            git config --global user.email "jenkins@dgteam.com"
+                            git config --global user.name "Jenkins"
+                            git add .
+                            git diff --cached --exit-code --quiet || git commit -m "Update image tags to ${imageTag} for services: ${changedServices.join(', ')}"
+                            git push origin main
+                        """
+                    }
+                }
+                checkError("CD Trigger Failed")
+            }
+
+
+            currentBuild.result = 'SUCCESS'
+            echo "**** FINISH ALL STAGES : SUCCESS"
+            echo "Successfully processed services: ${changedServices}"
+            slackSend (channel: '#배포', color: '#00FF00', message: "CI SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+
+        } catch(e) {
+            currentBuild.result = "FAILED"
+            echo "**** ERROR: ${e.getMessage()}"
+            slackSend (channel: '#배포', color: '#FF0000', message: "CI FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+            throw e
+        }
+    }
+}
