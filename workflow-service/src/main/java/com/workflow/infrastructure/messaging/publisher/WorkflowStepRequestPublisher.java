@@ -25,7 +25,6 @@ public class WorkflowStepRequestPublisher {
             WorkflowStepEvent event = WorkflowStepEvent.builder()
                     .workflowId(workflow.getId())
                     .stepType(stepType)
-                    // 추가되는 필드들
                     .orderNumber(workflow.getOrderNumber())
                     .orderSeq(workflow.getOrderSeq())
                     .serviceType(workflow.getServiceType())
@@ -38,9 +37,11 @@ public class WorkflowStepRequestPublisher {
             kafkaTemplate.send(requestTopic, workflow.getId(), event)
                     .whenComplete((result, ex) -> {
                         if (ex == null) {
-                            log.debug("Successfully sent step request: {}", event);
+                            log.debug("Successfully sent step request for step: {} of workflow: {}",
+                                    stepType, workflow.getId());
                         } else {
-                            log.error("Failed to send step request: {}", event, ex);
+                            log.error("Failed to send step request: {} for workflow: {}",
+                                    stepType, workflow.getId(), ex);
                         }
                     });
         });

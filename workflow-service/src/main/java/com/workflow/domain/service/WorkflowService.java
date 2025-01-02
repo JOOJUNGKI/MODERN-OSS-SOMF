@@ -1,4 +1,3 @@
-// File: myprj6/workflow-service/src/main/java/com/workflow/domain/service/WorkflowService.java
 package com.workflow.domain.service;
 
 import com.workflow.api.dto.WorkflowHistoryResponse;
@@ -26,24 +25,11 @@ import java.util.List;
 public class WorkflowService {
     private final WorkflowRepository workflowRepository;
     private final WorkflowMapper workflowMapper;
-    private final WorkflowStepRequestPublisher stepRequestPublisher;
+    private final WorkflowScheduler scheduler;
 
-    public Workflow createWorkflow(WorkflowCreationEvent event) {
-        Workflow workflow = Workflow.create(
-                event.getOrderNumber(),
-                event.getOrderSeq(),
-                event.getServiceType(),
-                event.getOrderType(),
-                event.getCustName(),
-                event.getAddress());
-
-        WorkflowEntity savedEntity = workflowRepository.save(workflowMapper.toEntity(workflow));
-
-        // 초기 단계 이벤트 발행
-        stepRequestPublisher.publishStepRequest(workflow);
-
-        log.debug("Created new workflow: {}", workflow.getId());
-        return workflowMapper.toDomain(savedEntity);
+    public void handleWorkflowCreation(WorkflowCreationEvent event) {
+        log.debug("Handling workflow creation event: {}", event);
+        scheduler.scheduleWorkflow(event);
     }
 
     @Transactional(readOnly = true)
@@ -67,26 +53,16 @@ public class WorkflowService {
                 .orElseThrow(() -> new WorkflowNotFoundException(workflowId));
     }
 
-
     public void handleStepCompletion(String workflowId, StepType completedStep) {
-        WorkflowEntity entity = workflowRepository.findById(workflowId)
+        log.debug("Handling step completion: {} for workflow: {}", completedStep, workflowId);
+        scheduler.handleStepCompletion(workflowId, completedStep);
+    }
+
+    @Transactional(readOnly = true)
+    public Workflow getWorkflowById(String workflowId) {
+        return workflowRepository.findById(workflowId)
+                .map(workflowMapper::toDomain)
                 .orElseThrow(() -> new WorkflowNotFoundException(workflowId));
-
-        Workflow workflow = workflowMapper.toDomain(entity);
-        workflow.completeStep(completedStep);
-
-        // 워크플로우 상태 업데이트
-        WorkflowEntity updatedEntity = workflowRepository.save(workflowMapper.toEntity(workflow));
-        Workflow updatedWorkflow = workflowMapper.toDomain(updatedEntity);
-
-        // 다음 단계가 있는 경우 이벤트 발행
-        if (updatedWorkflow.getStatus() != WorkflowStatus.COMPLETED
-                && !updatedWorkflow.getActiveSteps().isEmpty()) {
-            stepRequestPublisher.publishStepRequest(updatedWorkflow);
-            log.debug("Published next step request for workflow: {}", workflowId);
-        } else {
-            log.info("Workflow completed: {}", workflowId);
-        }
     }
 
     private void validateWorkflowExists(String workflowId) {

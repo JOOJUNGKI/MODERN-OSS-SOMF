@@ -2,7 +2,6 @@
 package com.workflow.infrastructure.messaging.consumer;
 
 import com.workflow.domain.event.WorkflowStepEvent;
-import com.workflow.domain.model.step.StepType;
 import com.workflow.domain.service.WorkflowService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +21,6 @@ public class WorkflowStepResponseConsumer {
             workflowService.handleStepCompletion(
                     event.getWorkflowId(),
                     event.getStepType()
-                    //,event.getPayload()
             );
             log.info("Successfully processed step completion for workflow: {}",
                     event.getWorkflowId());

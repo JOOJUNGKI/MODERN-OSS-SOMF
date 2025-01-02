@@ -71,6 +71,7 @@ public class Workflow {
         }
     }
 
+
     public void completeStep(StepType completedStep) {
         if (!activeSteps.contains(completedStep)) {
             throw new IllegalStateException("Step is not active: " + completedStep);
@@ -83,13 +84,6 @@ public class Workflow {
         activeSteps.remove(completedStep);
         completedSteps.add(completedStep);
 
-        // 다음 단계들 시작
-        Set<StepType> nextSteps = completedStep.getNextSteps();
-        for (StepType nextStep : nextSteps) {
-            if (nextStep.canStart(completedSteps)) {
-                startStep(nextStep);
-            }
-        }
 
         updateWorkflowStatus();
         this.updatedAt = LocalDateTime.now();

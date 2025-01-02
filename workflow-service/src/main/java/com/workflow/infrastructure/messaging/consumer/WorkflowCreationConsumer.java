@@ -23,9 +23,8 @@ public class WorkflowCreationConsumer {
     public void handleWorkflowCreation(WorkflowCreationEvent event) {
         log.info("Received workflow creation request: {}", event);
         try {
-            Workflow workflow = workflowService.createWorkflow(event);
-            //stepRequestPublisher.publishStepRequest(workflow);
-            log.info("Successfully created workflow: {}", workflow.getId());
+            workflowService.handleWorkflowCreation(event);  // createWorkflow 대신 handleWorkflowCreation 호출
+            log.info("Successfully created workflow for request: {}", event.getRequestId());
         } catch (Exception e) {
             log.error("Failed to create workflow for request: {}", event.getRequestId(), e);
         }

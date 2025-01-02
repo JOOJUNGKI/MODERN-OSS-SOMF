@@ -39,7 +39,7 @@ public enum StepType {
         }
     }
 
-    public Set<StepType> getNextSteps() {
+    public Set<StepType> getNextSteps(Set<StepType> completedSteps) {
         Set<StepType> nextSteps = new HashSet<>();
 
         switch (this) {
@@ -49,14 +49,20 @@ public enum StepType {
                 nextSteps.add(SITE);
                 nextSteps.add(EQUIPMENT);
             }
-            case SITE, EQUIPMENT -> {
-                // 현장이나 장치가 완료되면 다른 쪽도 확인 필요
-                if (areParallelStepsCompleted()) {
+            case SITE -> {
+                // 장치가 완료되었는지 확인
+                if (completedSteps.contains(EQUIPMENT)) {
+                    nextSteps.add(MASTER);
+                }
+            }
+            case EQUIPMENT -> {
+                // 현장이 완료되었는지 확인
+                if (completedSteps.contains(SITE)) {
                     nextSteps.add(MASTER);
                 }
             }
             case MASTER -> nextSteps.add(COMPLETION);
-            case COMPLETION -> { } // 마지막 단계
+            case COMPLETION -> { }
         }
 
         return nextSteps;
@@ -66,20 +72,14 @@ public enum StepType {
         return true; // 실제 구현에서는 현장과 장치의 완료 상태를 확인하는 로직 필요
     }
 
-    /**
-     * 현재 단계가 시작 가능한지 확인
-     * @param completedSteps 완료된 단계들
-     * @return 시작 가능 여부
-     */
     public boolean canStart(Set<StepType> completedSteps) {
         return completedSteps.containsAll(dependencies);
     }
 
-    /**
-     * 모든 필수 선행 단계들을 반환
-     * @return 선행 단계들
-     */
     public Set<StepType> getDependencies() {
-        return EnumSet.copyOf(dependencies);
+        if (dependencies.isEmpty()) {
+            return EnumSet.noneOf(StepType.class);  // 빈 의존성인 경우 빈 EnumSet 반환
+        }
+        return EnumSet.copyOf(dependencies);        // 의존성이 있는 경우 복사본 반환
     }
 }
