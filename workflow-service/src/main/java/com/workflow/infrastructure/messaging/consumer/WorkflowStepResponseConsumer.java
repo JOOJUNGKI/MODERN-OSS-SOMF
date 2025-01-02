@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 public class WorkflowStepResponseConsumer {
     private final WorkflowService workflowService;
 
-    @KafkaListener(topics = "${kafka.topics.step.response}")
+    @KafkaListener(topics = "${kafka.topics.internet.step.response}")
     public void handleStepResponse(WorkflowStepEvent event) {
         log.debug("Received step response: {}", event);
         try {

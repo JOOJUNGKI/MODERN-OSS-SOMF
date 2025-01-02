@@ -13,10 +13,10 @@ public class KafkaConfig {
    @Value("${kafka.topics.creation.request}")
    private String creationTopic;
 
-   @Value("${kafka.topics.step.request}")
+   @Value("${kafka.topics.internet.step.request}")
    private String stepRequestTopic;
 
-   @Value("${kafka.topics.step.response}") 
+   @Value("${kafka.topics.internet.step.response}")
    private String stepResponseTopic;
 
    @Bean

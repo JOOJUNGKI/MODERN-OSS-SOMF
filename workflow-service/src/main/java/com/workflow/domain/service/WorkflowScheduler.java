@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -51,7 +52,7 @@ public class WorkflowScheduler {
         log.info("Starting initial steps {} for workflow {}", initialSteps, savedWorkflow.getId());
 
         initialSteps.forEach(step -> {
-            stepRequestPublisher.publishStepRequest(savedWorkflow);
+            stepRequestPublisher.publishStepRequest(savedWorkflow, step);
             log.debug("Published request for step {} of workflow {}", step, savedWorkflow.getId());
         });
     }
@@ -68,16 +69,8 @@ public class WorkflowScheduler {
             plan.markStepCompleted(completedStep);
             log.info("Step {} completed for workflow {}", completedStep, workflowId);
 
+            // updateWorkflowEntity 내부에서 다음 단계 처리 및 메시지 발행까지 모두 처리
             updateWorkflowEntity(workflowId, completedStep);
-
-            final Set<StepType> nextSteps = plan.getNextExecutableSteps();
-            if (!nextSteps.isEmpty()) {
-                final Workflow workflow = getWorkflow(workflowId);
-                nextSteps.forEach(step -> {
-                    stepRequestPublisher.publishStepRequest(workflow);
-                    log.debug("Published request for next step {} of workflow {}", step, workflowId);
-                });
-            }
 
             if (plan.getStatus() == PlanStatus.COMPLETED) {
                 log.info("Workflow {} completed successfully", workflowId);
@@ -116,7 +109,30 @@ public class WorkflowScheduler {
         WorkflowEntity entity = workflowRepository.findById(workflowId)
                 .orElseThrow(() -> new WorkflowNotFoundException(workflowId));
         Workflow workflow = workflowMapper.toDomain(entity);
+
+        log.debug("[Debug] Before completion - Active steps: {}, Completed steps: {}",
+                workflow.getActiveSteps(), workflow.getCompletedSteps());
+
         workflow.completeStep(completedStep);
+
+        Set<StepType> nextSteps = completedStep.getNextSteps(workflow.getCompletedSteps());
+        log.debug("[Debug] Next steps from getNextSteps: {}", nextSteps);
+
+        Set<StepType> executableSteps = nextSteps.stream()
+                .filter(step -> step.canStart(workflow.getCompletedSteps()))
+                .collect(Collectors.toSet());
+        log.debug("[Debug] Filtered executable steps: {}", executableSteps);
+
+        executableSteps.forEach(step -> {
+            workflow.startStep(step);
+            log.debug("[Debug] Starting step {} for workflow {}", step, workflowId);
+            stepRequestPublisher.publishStepRequest(workflow, step);
+            log.debug("[Debug] Published request for step {} of workflow {}", step, workflowId);
+        });
+
+        log.debug("[Debug] After update - Active steps: {}, Completed steps: {}",
+                workflow.getActiveSteps(), workflow.getCompletedSteps());
+
         workflowRepository.save(workflowMapper.toEntity(workflow));
     }
 
