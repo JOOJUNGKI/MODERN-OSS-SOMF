@@ -101,7 +101,7 @@ podTemplate(
                     changedServices.each { service ->
                         def imagePath = "${props.registry}/${props.image_org}/${service}/prod"
                         sh """
-                            podman build -f deployment/Dockerfile.${service} \
+                            podman build -f deployment/prod/Dockerfile.${service} \
                                 -t ${imagePath}:${imageTag} \
                                 -t ${imagePath}:latest .
                         """
@@ -159,7 +159,7 @@ podTemplate(
                             fi
 
                             for service in \$changed_services; do
-                                yq eval ".spec.template.spec.containers[0].image = \\"${props.registry}/${props.image_org}/prod/\${service}:${imageTag}\\"" -i overlays/prod/\${service}/deployment.yaml
+                                yq eval ".spec.template.spec.containers[0].image = \\"${props.registry}/${props.image_org}/\${service}/prod:${imageTag}\\"" -i overlays/prod/\${service}/deployment.yaml
                             done
 
                             git config --global user.email "jenkins@dgteam.com"
