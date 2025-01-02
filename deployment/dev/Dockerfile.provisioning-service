@@ -7,4 +7,5 @@ FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 COPY --from=builder /app/provisioning-service/build/libs/*.jar app.jar
 EXPOSE 8082
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENV SPRING_PROFILES_ACTIVE=dev
+ENTRYPOINT ["java", "-Dspring.profiles.active=dev", "-jar", "app.jar"]

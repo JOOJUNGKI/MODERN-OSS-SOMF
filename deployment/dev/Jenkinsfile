@@ -89,7 +89,9 @@ podTemplate(
                     changedServices.each { service ->
                         sh """
                             chmod +x gradlew
-                            ./gradlew :${service}:clean :${service}:build -x test
+                            ./gradlew :${service}:clean :${service}:build -x test \
+                            -PspringProfiles=dev \
+                            -Dspring.profiles.active=dev
                         """
                     }
                 }
@@ -102,6 +104,7 @@ podTemplate(
                         def imagePath = "${props.registry}/${props.image_org}/${service}/dev"
                         sh """
                             podman build -f deployment/Dockerfile.${service} \
+                                --build-arg SPRING_PROFILES_ACTIVE=dev \
                                 -t ${imagePath}:${imageTag} \
                                 -t ${imagePath}:latest .
                         """
