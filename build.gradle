@@ -35,6 +35,8 @@ subprojects {
         }
     }
 
+
+
     dependencies {
         // Spring Boot
         implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -56,7 +58,12 @@ subprojects {
         // Test
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
         testImplementation 'org.springframework.kafka:spring-kafka-test'
+
+        // Data
+        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+        runtimeOnly 'org.postgresql:postgresql'
     }
+
 
     test {
         useJUnitPlatform()
@@ -69,25 +76,33 @@ project(':workflow-common') {
     jar { enabled = true }
 }
 
-// Service Modules
-project(':workflow-service') {
-    dependencies {
-        implementation project(':workflow-common')
-        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-        runtimeOnly 'org.postgresql:postgresql'
+subprojects { subproject ->
+    if (subproject.name != 'workflow-common') {
+        dependencies {
+            implementation project(':workflow-common')
+        }
     }
 }
 
-project(':workflow-acl-service') {
-    dependencies {
-        implementation project(':workflow-common')
-    }
-}
-
-project(':provisioning-service') {
-    dependencies {
-        implementation project(':workflow-common')
-        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-        runtimeOnly 'org.postgresql:postgresql'
-    }
-}
+//// Service Modules
+//project(':workflow-service') {
+//    dependencies {
+//        implementation project(':workflow-common')
+//        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+//        runtimeOnly 'org.postgresql:postgresql'
+//    }
+//}
+//
+//project(':workflow-acl-service') {
+//    dependencies {
+//        implementation project(':workflow-common')
+//    }
+//}
+//
+//project(':provisioning-service') {
+//    dependencies {
+//        implementation project(':workflow-common')
+//        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+//        runtimeOnly 'org.postgresql:postgresql'
+//    }
+//}
