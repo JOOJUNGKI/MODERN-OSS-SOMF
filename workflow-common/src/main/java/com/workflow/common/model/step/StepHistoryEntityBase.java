@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@Entity
+@MappedSuperclass
 public class StepHistoryEntityBase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -45,8 +45,8 @@ kafka:
       request: ${KAFKA_TOPIC_CREATION_REQUEST:workflow.creation.request}
     internet:
       step:
-        request: ${KAFKA_TOPIC_INTERNET_STEP_REQUEST:workflow.internet.step.request}
-        response: ${KAFKA_TOPIC_INTERNET_STEP_RESPONSE:workflow.internet.step.response}
+        request: ${KAFKA_TOPIC_INTERNET_STEP_REQUEST:workflow.internet.step.acquisition.request}
+        response: ${KAFKA_TOPIC_INTERNET_STEP_RESPONSE:workflow.internet.step.acquisition.response}
 
 spring-doc:
   api-docs:
