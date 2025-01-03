@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: internet-acquisition-service
+    name: internet-site-service
   kafka:
     bootstrap-servers: localhost:29092
     consumer:

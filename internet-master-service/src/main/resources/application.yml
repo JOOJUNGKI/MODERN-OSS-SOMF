@@ -1,9 +1,9 @@
 server:
-  port: ${SERVER_PORT:8086}
+  port: ${SERVER_PORT:8087}
 
 spring:
   application:
-    name: internet-equipment-service
+    name: internet-master-service
   kafka:
     bootstrap-servers: localhost:29092
     consumer:
@@ -42,8 +42,8 @@ kafka:
   topics:
     internet:
       step:
-        request: ${KAFKA_TOPIC_INTERNET_STEP_REQUEST:workflow.internet.step.equipment.request}
-        response: ${KAFKA_TOPIC_INTERNET_STEP_RESPONSE:workflow.internet.step.equipment.response}
+        request: ${KAFKA_TOPIC_INTERNET_STEP_REQUEST:workflow.internet.step.master.request}
+        response: ${KAFKA_TOPIC_INTERNET_STEP_RESPONSE:workflow.internet.step.master.response}
 
 springdoc:
   api-docs:
