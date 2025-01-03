@@ -17,6 +17,7 @@ public class WorkflowStepResponseConsumer {
             topics = "${kafka.topics.step.response}",
             containerFactory = "workflowStepKafkaListenerContainerFactory"
     )
+    //@KafkaListener(topics = "${kafka.topics.internet.step.response}")
     public void handleStepResponse(WorkflowStepEvent event) {
         log.debug("Received step response: {}", event);
         try {

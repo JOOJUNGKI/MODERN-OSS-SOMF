@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 public class WorkflowStepRequestPublisher {
     private final KafkaTemplate<String, WorkflowStepEvent> kafkaTemplate;
 
-    @Value("${kafka.topics.step.request}")
+    @Value("${kafka.topics.internet.step.request}")
     private String requestTopic;
 
     public WorkflowStepRequestPublisher(@Qualifier("workflowKafkaTemplate") KafkaTemplate<String, WorkflowStepEvent> kafkaTemplate) {
@@ -40,14 +40,15 @@ public class WorkflowStepRequestPublisher {
                     .timestamp(LocalDateTime.now())
                     .build();
 
-            kafkaTemplate.send(requestTopic, workflow.getId(), event)
-                    .whenComplete((result, ex) -> {
-                        if (ex == null) {
-                            log.debug("Successfully sent step request: {}", event);
-                        } else {
-                            log.error("Failed to send step request: {}", event, ex);
-                        }
-                    });
-        });
+        kafkaTemplate.send(requestTopic, workflow.getId(), event)
+                .whenComplete((result, ex) -> {
+                    if (ex == null) {
+                        log.debug("Successfully sent step request for step: {} of workflow: {}",
+                                stepType, workflow.getId());
+                    } else {
+                        log.error("Failed to send step request: {} for workflow: {}",
+                                stepType, workflow.getId(), ex);
+                    }
+                });
     }
 }
