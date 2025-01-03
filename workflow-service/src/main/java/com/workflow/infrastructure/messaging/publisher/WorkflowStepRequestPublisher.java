@@ -40,15 +40,16 @@ public class WorkflowStepRequestPublisher {
                     .timestamp(LocalDateTime.now())
                     .build();
 
-        kafkaTemplate.send(requestTopic, workflow.getId(), event)
-                .whenComplete((result, ex) -> {
-                    if (ex == null) {
-                        log.debug("Successfully sent step request for step: {} of workflow: {}",
-                                stepType, workflow.getId());
-                    } else {
-                        log.error("Failed to send step request: {} for workflow: {}",
-                                stepType, workflow.getId(), ex);
-                    }
-                });
+            kafkaTemplate.send(requestTopic, workflow.getId(), event)
+                    .whenComplete((result, ex) -> {
+                        if (ex == null) {
+                            log.debug("Successfully sent step request for step: {} of workflow: {}",
+                                    stepType, workflow.getId());
+                        } else {
+                            log.error("Failed to send step request: {} for workflow: {}",
+                                    stepType, workflow.getId(), ex);
+                        }
+                    });
+        });
     }
 }

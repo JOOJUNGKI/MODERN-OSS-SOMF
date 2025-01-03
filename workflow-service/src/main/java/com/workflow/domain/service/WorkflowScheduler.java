@@ -1,8 +1,8 @@
 package com.workflow.domain.service;
 
+import com.workflow.common.event.StepType;
+import com.workflow.common.event.WorkflowCreationEvent;
 import com.workflow.common.exception.WorkflowNotFoundException;
-import com.workflow.domain.event.WorkflowCreationEvent;
-import com.workflow.domain.model.step.StepType;
 import com.workflow.domain.model.workflow.ExecutionPlan;
 import com.workflow.domain.model.workflow.PlanStatus;
 import com.workflow.domain.model.workflow.Workflow;
@@ -52,7 +52,7 @@ public class WorkflowScheduler {
         log.info("Starting initial steps {} for workflow {}", initialSteps, savedWorkflow.getId());
 
         initialSteps.forEach(step -> {
-            stepRequestPublisher.publishStepRequest(savedWorkflow, step);
+            stepRequestPublisher.publishStepRequest(savedWorkflow);
             log.debug("Published request for step {} of workflow {}", step, savedWorkflow.getId());
         });
     }
@@ -115,7 +115,7 @@ public class WorkflowScheduler {
 
         workflow.completeStep(completedStep);
 
-        Set<StepType> nextSteps = completedStep.getNextSteps(workflow.getCompletedSteps());
+        Set<StepType> nextSteps = completedStep.getNextSteps();
         log.debug("[Debug] Next steps from getNextSteps: {}", nextSteps);
 
         Set<StepType> executableSteps = nextSteps.stream()
@@ -126,7 +126,7 @@ public class WorkflowScheduler {
         executableSteps.forEach(step -> {
             workflow.startStep(step);
             log.debug("[Debug] Starting step {} for workflow {}", step, workflowId);
-            stepRequestPublisher.publishStepRequest(workflow, step);
+            stepRequestPublisher.publishStepRequest(workflow);
             log.debug("[Debug] Published request for step {} of workflow {}", step, workflowId);
         });
 

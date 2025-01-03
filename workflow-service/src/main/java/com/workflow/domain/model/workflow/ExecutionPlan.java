@@ -1,7 +1,7 @@
 // File: myprj6/workflow-service/src/main/java/com/workflow/domain/model/workflow/ExecutionPlan.java
 package com.workflow.domain.model.workflow;
 
-import com.workflow.domain.model.step.StepType;
+import com.workflow.common.event.StepType;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
