@@ -2,7 +2,16 @@ def PIPELINE_ID = "modern-oss-${env.BUILD_NUMBER}"
 
 // 변경된 서비스 탐지 함수
 def getChangedServices() {
-    def services = ['provisioning-service', 'workflow-acl-service', 'workflow-service']
+    def services = ['provisioning-service',
+                        'workflow-acl-service',
+                        'workflow-service',
+                        'internet-acquisition-service',
+                        'internet-completion-service',
+                        'internet-equipment-service',
+                        'internet-facility-service',
+                        'internet-master-service',
+                        'internet-site-service'
+                    ]
 
     // 1. 현재 레포지토리의 이전 커밋 존재 여부 확인
     def hasPreCommit = sh(script: "git rev-parse HEAD^ >/dev/null 2>&1", returnStatus: true) == 0
