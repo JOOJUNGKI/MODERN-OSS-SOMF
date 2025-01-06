@@ -9,13 +9,24 @@ import org.springframework.kafka.config.TopicBuilder;
 
 @Configuration
 public class KafkaConfig {
-    
-    @Value("${kafka.topics.creation.request}")
-    private String creationTopic;
-    
+
+    @Value("${kafka.topics.internet.creation.request}")
+    private String internetCreationTopic;
+
+    @Value("${kafka.topics.iptv.creation.request}")
+    private String iptvCreationTopic;
+
     @Bean
-    public NewTopic workflowCreationTopic() {
-        return TopicBuilder.name(creationTopic)
+    public NewTopic internetCreationTopic() {
+        return TopicBuilder.name(internetCreationTopic)
+                .partitions(3)
+                .replicas(1)
+                .build();
+    }
+
+    @Bean
+    public NewTopic iptvCreationTopic() {
+        return TopicBuilder.name(iptvCreationTopic)
                 .partitions(3)
                 .replicas(1)
                 .build();
