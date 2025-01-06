@@ -53,8 +53,18 @@ public class WorkflowService {
                 .orElseThrow(() -> new WorkflowNotFoundException(workflowId));
     }
 
+    @Transactional
     public void handleStepCompletion(String workflowId, StepType completedStep) {
-        log.debug("Handling step completion: {} for workflow: {}", completedStep, workflowId);
+        WorkflowEntity entity = workflowRepository.findById(workflowId)
+                .orElseThrow(() -> new WorkflowNotFoundException(workflowId));
+
+        // 이미 완료된 단계인지 확인
+        if (entity.getCompletedSteps().contains(completedStep)) {
+            log.debug("Step {} already completed for workflow {}", completedStep, workflowId);
+            return;
+        }
+
+        // 나머지 처리 로직
         scheduler.handleStepCompletion(workflowId, completedStep);
     }
 
