@@ -1,0 +1,66 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  config:
+    activate:
+      on-profile: dev
+  application:
+    name: iptv-completion-service
+  kafka:
+    bootstrap-servers: 20.249.185.137:9092
+    consumer:
+      group-id: ${spring.application.name}-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.workflow.common.event"
+        spring.json.type.mapping: >
+          workflow-step:com.workflow.common.event.WorkflowStepEvent,
+          workflow-creation:com.workflow.common.event.WorkflowCreationEvent
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.type.mappings: >
+          workflow-step:com.workflow.common.event.WorkflowStepEvent,
+          workflow-creation:com.workflow.common.event.WorkflowCreationEvent
+          
+  datasource:
+    url: ${POSTGRES_URL:jdbc:postgresql://20.249.204.114:5432/lego_db}
+    username: ${POSTGRES_USER:lego_user}
+    password: ${POSTGRES_PASSWORD:lego_pass}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc.batch_size: 50
+        order_inserts: true
+        order_updates: true
+        # 낙관적 락 설정
+        jdbc.batch_versioned_data: true
+
+kafka:
+  topics:
+    creation:
+      request: ${KAFKA_TOPIC_CREATION_REQUEST:workflow.creation.request}
+    step:
+      request: ${KAFKA_TOPIC_STEP_REQUEST:workflow.internet.step.request}
+      response: ${KAFKA_TOPIC_STEP_RESPONSE:workflow.internet.step.response}
+
+spring-doc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    try-it-out-enabled: true
+
+logging:
+  level:
+    com.workflow: ${LOG_LEVEL:DEBUG}
