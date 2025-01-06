@@ -152,8 +152,9 @@ podTemplate(
             }
         }
 
-        /*
+        
         try {
+            /*
             stage('Build Applications') {
                 container('gradle') {
                     // 변경된 서비스만 빌드
