@@ -11,13 +11,13 @@ public class StepMapper {
    public StepHistoryEntity toEntity(StepHistory stepHistory) {
        StepHistoryEntity entity = new StepHistoryEntity();
        entity.setOrderNumber(stepHistory.getOrderNumber());
-       entity.setStepType(stepHistory.getStepType());
+       entity.setStepTypeStrategy(stepHistory.getStepType());
        return entity;
    }
 
    public StepHistory toDomain(StepHistoryEntity entity) {
        return StepHistory.builder()
-               .stepType(entity.getStepType())
+               .stepType(entity.getStepTypeStrategy())
                .serviceType(entity.getServiceType())
                .startAt(entity.getStartAt())
                .endAt(entity.getEndAt())
@@ -28,7 +28,7 @@ public class StepMapper {
         StepHistoryEntity entity = new StepHistoryEntity();
         entity.setWorkflowId(event.getWorkflowId());
         entity.setOrderNumber(event.getOrderNumber());
-        entity.setStepType(event.getStepType());
+        entity.setStepTypeStrategy(event.getStepType());
         entity.setServiceType(event.getServiceType());
         entity.setOrderType(event.getOrderType());
         entity.setOrderSeq(event.getOrderSeq());
@@ -42,7 +42,7 @@ public class StepMapper {
                .workflowId(entity.getWorkflowId())
                .orderNumber(entity.getOrderNumber())
                .serviceType(entity.getServiceType())
-               .stepType(entity.getStepType())
+               .stepTypeName(entity.getStepTypeStrategy().getStepName())
                .timestamp(entity.getEndAt())
                .build();
     }

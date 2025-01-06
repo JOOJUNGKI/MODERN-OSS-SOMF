@@ -1,7 +1,7 @@
 
 package com.workflow.internet.completion.infrastructure.persistence.entity;
 
-import com.workflow.common.model.step.StepHistoryEntityBase;
+import com.workflow.common.persistence.entity.StepHistoryEntityBase;
 import jakarta.persistence.*;
 @Entity
 @Table(name = "tbl_internet_completion_history")

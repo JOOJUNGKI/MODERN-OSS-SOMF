@@ -1,6 +1,8 @@
 
 package com.workflow.domain.model.workflow;
 
+import com.workflow.common.step.ServiceType;
+import com.workflow.common.step.StepTypeStrategy;
 import com.workflow.domain.model.step.StepHistory;
 import com.workflow.common.event.StepType;
 import lombok.Builder;
@@ -15,7 +17,7 @@ public class Workflow {
     private final String id;
     private final String orderNumber;
     private final Integer orderSeq;
-    private final String serviceType;
+    private final ServiceType serviceType;
     private final String orderType;
     private final String custName;
     private final String address;
@@ -24,10 +26,10 @@ public class Workflow {
     private LocalDateTime updatedAt;
 
     @Builder.Default
-    private Set<StepType> activeSteps = EnumSet.noneOf(StepType.class);
+    private Set<StepTypeStrategy> activeSteps = EnumSet.noneOf(StepType.class);
 
     @Builder.Default
-    private Set<StepType> completedSteps = EnumSet.noneOf(StepType.class);
+    private Set<StepTypeStrategy> completedSteps = EnumSet.noneOf(StepType.class);
 
     @Builder.Default
     private List<StepHistory> stepHistories = new ArrayList<>();
