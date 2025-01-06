@@ -16,7 +16,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class LegacyWorkflowService {
     private final KafkaTemplate<String, WorkflowCreationEvent> kafkaTemplate;
-
+ 
     @Value("${kafka.topics.creation.request}")
     private String creationTopic;
 
