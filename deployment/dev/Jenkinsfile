@@ -12,7 +12,8 @@ def PIPELINE_ID = "modern-oss-${env.BUILD_NUMBER}"
 
 // 변경된 서비스 탐지 함수
 def getChangedServices() {
-    def services = ['provisioning-service',
+    def services = [
+                    // 'provisioning-service',
                     'workflow-acl-service',
                     'workflow-service',
                     'internet-acquisition-service',
