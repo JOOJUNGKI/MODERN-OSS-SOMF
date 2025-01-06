@@ -1,6 +1,9 @@
-package com.workflow.common.model.step;
+package com.workflow.common.persistence.entity;
 
 import com.workflow.common.event.StepType;
+import com.workflow.common.persistence.converter.StepTypeStrategyConverter;
+import com.workflow.common.step.ServiceType;
+import com.workflow.common.step.StepTypeStrategy;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,11 +22,12 @@ public class StepHistoryEntityBase {
     @Column(name = "workflow_id")
     private String workflowId;
 
-    @Enumerated(EnumType.STRING)
-    private StepType stepType;
+    @Convert(converter = StepTypeStrategyConverter.class)
+    @Column(name = "step_type", nullable = false)
+    private StepTypeStrategy stepType;
 
     @Column(name = "service_type")
-    private String serviceType;
+    private ServiceType serviceType;
 
     @Column(name = "order_number")
     private String orderNumber;

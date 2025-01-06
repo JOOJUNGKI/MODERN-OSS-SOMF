@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 @Getter
 public enum IPTVStepType implements StepTypeStrategy {
     ACQUISITION("입수", 1),
-    AUTHENTICATION("인증", 2),
+    CERTIFICATION("인증", 2),
     SITE("현장", 3),
     MASTER("원부", 4),
     COMPLETION("완료", 5);
@@ -23,8 +23,8 @@ public enum IPTVStepType implements StepTypeStrategy {
     }
 
     static {
-        AUTHENTICATION.dependencies.add(ACQUISITION);
-        SITE.dependencies.add(AUTHENTICATION);
+        CERTIFICATION.dependencies.add(ACQUISITION);
+        SITE.dependencies.add(CERTIFICATION);
         MASTER.dependencies.add(SITE);
         COMPLETION.dependencies.add(MASTER);
     }
@@ -33,8 +33,8 @@ public enum IPTVStepType implements StepTypeStrategy {
     public Set<IPTVStepType> getNextSteps() {
         Set<IPTVStepType> nextSteps = new HashSet<>();
         switch (this) {
-            case ACQUISITION -> nextSteps.add(AUTHENTICATION);
-            case AUTHENTICATION -> nextSteps.add(SITE);
+            case ACQUISITION -> nextSteps.add(CERTIFICATION);
+            case CERTIFICATION -> nextSteps.add(SITE);
             case SITE -> nextSteps.add(MASTER);
             case MASTER -> nextSteps.add(COMPLETION);
             case COMPLETION -> {}

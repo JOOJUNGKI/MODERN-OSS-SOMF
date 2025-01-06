@@ -2,6 +2,7 @@ package com.workflow.infrastructure.messaging.publisher;
 
 import com.workflow.common.event.WorkflowStepEvent;
 import com.workflow.common.event.StepType;  // common 모듈의 StepType 사용
+import com.workflow.common.step.StepTypeStrategy;
 import com.workflow.domain.model.workflow.Workflow;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -33,10 +34,10 @@ public class WorkflowStepRequestPublisher {
                 .whenComplete((result, ex) -> logPublishResult(event, ex));
     }
 
-    private WorkflowStepEvent createStepEvent(Workflow workflow, StepType stepType) {
+    private WorkflowStepEvent createStepEvent(Workflow workflow, StepTypeStrategy stepType) {
         return WorkflowStepEvent.builder()
                 .workflowId(workflow.getId())
-                .stepType(stepType)
+                .stepTypeName(stepType.getStepName())
                 .orderNumber(workflow.getOrderNumber())
                 .orderSeq(workflow.getOrderSeq())
                 .serviceType(workflow.getServiceType())
@@ -47,8 +48,8 @@ public class WorkflowStepRequestPublisher {
                 .build();
     }
 
-    private String getTopicForStepType(StepType stepType) {
-        return String.format(TOPIC_FORMAT, stepType.name().toLowerCase());
+    private String getTopicForStepType(StepTypeStrategy stepType) {
+        return String.format(TOPIC_FORMAT, stepType.getStepName().toLowerCase());
     }
 
     private void logPublishResult(WorkflowStepEvent event, Throwable ex) {

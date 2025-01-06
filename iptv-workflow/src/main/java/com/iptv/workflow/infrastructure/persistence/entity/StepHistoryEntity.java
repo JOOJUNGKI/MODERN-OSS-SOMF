@@ -1,7 +1,7 @@
 package com.iptv.workflow.infrastructure.persistence.entity;
 
+import com.workflow.common.persistence.converter.StepTypeStrategyConverter;
 import com.workflow.common.step.StepTypeStrategy;
-import com.iptv.workflow.infrastructure.persistence.converter.StepTypeStrategyConverter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,7 +11,7 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "step_histories")
+@Table(name = "tbl_iptv_step_histories")
 @Getter
 @Setter
 @NoArgsConstructor

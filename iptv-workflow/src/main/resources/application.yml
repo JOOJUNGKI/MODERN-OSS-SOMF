@@ -1,9 +1,9 @@
 server:
-  port: ${SERVER_PORT:8083}
+  port: ${SERVER_PORT:9099}
 
 spring:
   application:
-    name: iptv-workflow
+    name: iptv-workflow-service
   kafka:
     bootstrap-servers: localhost:29092
     consumer:
@@ -12,11 +12,10 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
-        spring.json.trusted.packages: "com.workflow.common.event"
+        spring.json.trusted.packages: "com.workflow.common.event, com.workflow.common.step"
         spring.json.type.mapping: >
           workflow-creation:com.workflow.common.event.WorkflowCreationEvent,
-          workflow-step:com.workflow.common.event.WorkflowStepEvent,
-          iptv-step:com.workflow.common.event.IPTVStepType
+          workflow-step:com.workflow.common.event.WorkflowStepEvent
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -48,9 +47,6 @@ kafka:
     iptv:
       creation:
         request: ${KAFKA_TOPIC_IPTV_CREATION_REQUEST:workflow.iptv.creation.request}
-      step:
-        request: ${KAFKA_TOPIC_IPTV_STEP_REQUEST:workflow.iptv.step.request}
-        response: ${KAFKA_TOPIC_IPTV_STEP_RESPONSE:workflow.iptv.step.response}
 
 springdoc:
   api-docs:

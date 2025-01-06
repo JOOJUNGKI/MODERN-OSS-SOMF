@@ -42,7 +42,7 @@ public class StepMapper {
                .workflowId(entity.getWorkflowId())
                .orderNumber(entity.getOrderNumber())
                .serviceType(entity.getServiceType())
-               .stepType(entity.getStepType())
+               .stepTypeName(entity.getStepType().getStepName())
                .timestamp(entity.getEndAt())
                .build();
     }

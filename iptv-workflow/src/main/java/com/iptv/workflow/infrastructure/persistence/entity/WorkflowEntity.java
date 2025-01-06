@@ -1,8 +1,8 @@
 package com.iptv.workflow.infrastructure.persistence.entity;
 
-import com.workflow.common.step.StepTypeStrategy;
 import com.iptv.workflow.domain.model.workflow.WorkflowStatus;
-import com.iptv.workflow.infrastructure.persistence.converter.StepTypeStrategyConverter;
+import com.workflow.common.persistence.converter.StepTypeStrategyConverter;
+import com.workflow.common.step.StepTypeStrategy;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,7 +10,10 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "workflows")
@@ -31,22 +34,22 @@ public class WorkflowEntity {
    @Enumerated(EnumType.STRING)
    private WorkflowStatus status;
 
-   @ElementCollection
-   @Convert(converter = StepTypeStrategyConverter.class)
+   @ElementCollection(targetClass = StepTypeStrategy.class)
    @CollectionTable(
            name = "workflow_active_steps",
            joinColumns = @JoinColumn(name = "workflow_id")
    )
    @Column(name = "step_type")
+   @Convert(converter = StepTypeStrategyConverter.class)
    private Set<StepTypeStrategy> activeSteps = new HashSet<>();
 
-   @ElementCollection
-   @Convert(converter = StepTypeStrategyConverter.class)
+   @ElementCollection(targetClass = StepTypeStrategy.class)
    @CollectionTable(
            name = "workflow_completed_steps",
            joinColumns = @JoinColumn(name = "workflow_id")
    )
    @Column(name = "step_type")
+   @Convert(converter = StepTypeStrategyConverter.class)
    private Set<StepTypeStrategy> completedSteps = new HashSet<>();
 
    @CreationTimestamp

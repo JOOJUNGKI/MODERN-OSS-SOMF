@@ -1,4 +1,4 @@
-package com.iptv.workflow.infrastructure.persistence.converter;
+package com.workflow.common.persistence.converter;
 
 import com.workflow.common.step.IPTVStepType;
 import com.workflow.common.step.InternetStepType;

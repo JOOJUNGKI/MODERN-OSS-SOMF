@@ -14,7 +14,13 @@ public class WorkflowStepResponseConsumer {
     private final WorkflowService workflowService;
 
     @KafkaListener(
-            topics = "${kafka.topics.iptv.step.response}",
+            topics = {
+                    "workflow.iptv.step.acquisition.response",
+                    "workflow.iptv.step.certification.response",
+                    "workflow.iptv.step.site.response",
+                    "workflow.iptv.step.master.response",
+                    "workflow.iptv.step.completion.response"
+            },
             containerFactory = "workflowStepKafkaListenerContainerFactory"
     )
     public void handleStepResponse(WorkflowStepEvent event) {
