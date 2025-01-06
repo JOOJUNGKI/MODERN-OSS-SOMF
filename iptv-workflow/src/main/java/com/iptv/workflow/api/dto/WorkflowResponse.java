@@ -1,8 +1,8 @@
-// File: myprj6/workflow-service/src/main/java/com/workflow/api/dto/WorkflowResponse.java
+// File: myprj6/iptv-workflow/src/main/java/com/workflow/api/dto/WorkflowResponse.java
 package com.iptv.workflow.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.workflow.common.event.IPTVStepType;
+import com.workflow.common.step.StepTypeStrategy;
 import com.iptv.workflow.domain.model.workflow.WorkflowStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -25,10 +25,10 @@ public class WorkflowResponse {
     private WorkflowStatus status;
 
     @Schema(description = "활성 단계들")
-    private Set<IPTVStepType> activeSteps;
+    private Set<StepTypeStrategy> activeSteps;
 
     @Schema(description = "완료된 단계들")
-    private Set<IPTVStepType> completedSteps;
+    private Set<StepTypeStrategy> completedSteps;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Schema(description = "생성일시")

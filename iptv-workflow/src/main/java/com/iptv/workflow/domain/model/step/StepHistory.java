@@ -1,6 +1,6 @@
-package com.iptv.workflow.domain.model.step;// File: myprj6/workflow-service/src/main/java/com/workflow/domain/model/step/StepHistory.java
+package com.iptv.workflow.domain.model.step;
 
-import com.workflow.common.event.IPTVStepType;
+import com.workflow.common.step.StepTypeStrategy;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 public class StepHistory {
-   private final IPTVStepType stepType;
+   private final StepTypeStrategy stepTypeStrategy;  // Changed from stepType
    private final LocalDateTime startTime;
    private LocalDateTime endTime;
 

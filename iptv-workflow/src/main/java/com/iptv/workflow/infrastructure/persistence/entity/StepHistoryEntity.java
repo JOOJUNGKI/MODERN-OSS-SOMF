@@ -1,7 +1,7 @@
-// File: myprj6/workflow-service/src/main/java/com/workflow/infrastructure/persistence/entity/StepHistoryEntity.java
 package com.iptv.workflow.infrastructure.persistence.entity;
 
-import com.workflow.common.event.StepType;
+import com.workflow.common.step.StepTypeStrategy;
+import com.iptv.workflow.infrastructure.persistence.converter.StepTypeStrategyConverter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,9 +21,9 @@ public class StepHistoryEntity {
    @GeneratedValue(strategy = GenerationType.IDENTITY)
    private Long id;
 
-   @Enumerated(EnumType.STRING)
+   @Convert(converter = StepTypeStrategyConverter.class)
    @Column(name = "step_type", nullable = false)
-   private StepType stepType;
+   private StepTypeStrategy stepTypeStrategy;
 
    @Column(name = "start_time", nullable = false)
    private LocalDateTime startTime;

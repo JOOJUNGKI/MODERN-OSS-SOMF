@@ -1,8 +1,8 @@
-// File: myprj6/workflow-service/src/main/java/com/workflow/infrastructure/persistence/entity/WorkflowEntity.java
 package com.iptv.workflow.infrastructure.persistence.entity;
 
-import com.workflow.common.event.IPTVStepType;
+import com.workflow.common.step.StepTypeStrategy;
 import com.iptv.workflow.domain.model.workflow.WorkflowStatus;
+import com.iptv.workflow.infrastructure.persistence.converter.StepTypeStrategyConverter;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,10 +10,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "workflows")
@@ -35,20 +32,22 @@ public class WorkflowEntity {
    private WorkflowStatus status;
 
    @ElementCollection
-   @Enumerated(EnumType.STRING)
+   @Convert(converter = StepTypeStrategyConverter.class)
    @CollectionTable(
            name = "workflow_active_steps",
            joinColumns = @JoinColumn(name = "workflow_id")
    )
-   private Set<IPTVStepType> activeSteps = EnumSet.noneOf(IPTVStepType.class);
+   @Column(name = "step_type")
+   private Set<StepTypeStrategy> activeSteps = new HashSet<>();
 
    @ElementCollection
-   @Enumerated(EnumType.STRING)
+   @Convert(converter = StepTypeStrategyConverter.class)
    @CollectionTable(
            name = "workflow_completed_steps",
            joinColumns = @JoinColumn(name = "workflow_id")
    )
-   private Set<IPTVStepType> completedSteps = EnumSet.noneOf(IPTVStepType.class);
+   @Column(name = "step_type")
+   private Set<StepTypeStrategy> completedSteps = new HashSet<>();
 
    @CreationTimestamp
    private LocalDateTime createdAt;

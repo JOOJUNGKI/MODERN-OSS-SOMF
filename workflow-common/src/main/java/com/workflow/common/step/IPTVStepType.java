@@ -1,11 +1,12 @@
-package com.workflow.common.event;
+package com.workflow.common.step;
 
 import lombok.Getter;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter
-public enum IPTVStepType {
+public enum IPTVStepType implements StepTypeStrategy {
     ACQUISITION("입수", 1),
     AUTHENTICATION("인증", 2),
     SITE("현장", 3),
@@ -14,12 +15,11 @@ public enum IPTVStepType {
 
     private final String description;
     private final int order;
-    private final Set<IPTVStepType> dependencies;
+    private final Set<IPTVStepType> dependencies = new HashSet<>();
 
     IPTVStepType(String description, int order) {
         this.description = description;
         this.order = order;
-        this.dependencies = new HashSet<>();
     }
 
     static {
@@ -29,25 +29,37 @@ public enum IPTVStepType {
         COMPLETION.dependencies.add(MASTER);
     }
 
+    @Override
     public Set<IPTVStepType> getNextSteps() {
         Set<IPTVStepType> nextSteps = new HashSet<>();
-
         switch (this) {
             case ACQUISITION -> nextSteps.add(AUTHENTICATION);
             case AUTHENTICATION -> nextSteps.add(SITE);
             case SITE -> nextSteps.add(MASTER);
             case MASTER -> nextSteps.add(COMPLETION);
-            case COMPLETION -> { }
+            case COMPLETION -> {}
         }
-
         return nextSteps;
     }
 
-    public boolean canStart(Set<IPTVStepType> completedSteps) {
-        return completedSteps.containsAll(dependencies);
+    @Override
+    public boolean canStart(Set<? extends StepTypeStrategy> completedSteps) {
+        // Convert completedSteps to Set<IPTVStepType>
+        Set<IPTVStepType> iptvSteps = completedSteps.stream()
+                .filter(step -> step instanceof IPTVStepType)
+                .map(step -> (IPTVStepType) step)
+                .collect(Collectors.toSet());
+
+        return iptvSteps.containsAll(this.dependencies);
     }
 
-    public Set<IPTVStepType> getDependencies() {
+    @Override
+    public String getStepName() {    // name() 대신 getStepName() 구현
+        return this.name();
+    }
+
+    @Override
+    public Set<? extends StepTypeStrategy> getDependencies() {
         return new HashSet<>(dependencies);
     }
 }

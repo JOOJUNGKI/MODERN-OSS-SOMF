@@ -2,9 +2,10 @@ package com.iptv.workflow.domain.service;
 
 import com.iptv.workflow.api.dto.WorkflowHistoryResponse;
 import com.iptv.workflow.api.dto.WorkflowResponse;
-import com.workflow.common.event.IPTVStepType;
 import com.workflow.common.event.WorkflowCreationEvent;
 import com.iptv.workflow.common.exception.WorkflowNotFoundException;
+import com.workflow.common.step.ServiceType;
+import com.workflow.common.step.StepTypeStrategy;
 import com.iptv.workflow.domain.model.workflow.Workflow;
 import com.iptv.workflow.infrastructure.persistence.mapper.WorkflowMapper;
 import com.iptv.workflow.infrastructure.persistence.repository.WorkflowRepository;
@@ -26,7 +27,17 @@ public class WorkflowService {
 
     public void handleWorkflowCreation(WorkflowCreationEvent event) {
         log.debug("Handling workflow creation event: {}", event);
+        validateServiceType(event.getServiceType());
         scheduler.scheduleWorkflow(event);
+    }
+
+    private void validateServiceType(String serviceType) {
+        ServiceType type = ServiceType.fromCode(serviceType);
+        if (type != ServiceType.IPTV) {
+            //throw new UnsupportedServiceTypeException(serviceType);
+            log.debug("InvalidateServiceType(Not IPTV)");
+
+        }
     }
 
     @Transactional(readOnly = true)
@@ -50,9 +61,20 @@ public class WorkflowService {
                 .orElseThrow(() -> new WorkflowNotFoundException(workflowId));
     }
 
-    public void handleStepCompletion(String workflowId, IPTVStepType completedStep) {
-        log.debug("Handling step completion: {} for workflow: {}", completedStep, workflowId);
+    public void handleStepCompletion(String workflowId, StepTypeStrategy completedStep) {
+        log.debug("Handling step completion: {} for workflow: {}", completedStep.getStepName(), workflowId);
+
+        Workflow workflow = getWorkflowById(workflowId);
+        validateStepType(completedStep, workflow.getServiceType());
+
         scheduler.handleStepCompletion(workflowId, completedStep);
+    }
+
+    private void validateStepType(StepTypeStrategy stepType, String serviceType) {
+        ServiceType type = ServiceType.fromCode(serviceType);
+        if (!stepType.getClass().equals(type.getStepTypeClass())) {
+            throw new IllegalArgumentException("Invalid step type for service: " + serviceType);
+        }
     }
 
     @Transactional(readOnly = true)

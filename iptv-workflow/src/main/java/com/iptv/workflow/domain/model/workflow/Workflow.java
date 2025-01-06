@@ -1,7 +1,8 @@
-
 package com.iptv.workflow.domain.model.workflow;
 
-import com.workflow.common.event.IPTVStepType;
+import com.workflow.common.step.IPTVStepType;
+import com.workflow.common.step.ServiceType;
+import com.workflow.common.step.StepTypeStrategy;
 import com.iptv.workflow.domain.model.step.StepHistory;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,10 +25,10 @@ public class Workflow {
     private LocalDateTime updatedAt;
 
     @Builder.Default
-    private Set<IPTVStepType> activeSteps = EnumSet.noneOf(IPTVStepType.class);
+    private Set<StepTypeStrategy> activeSteps = new HashSet<>();
 
     @Builder.Default
-    private Set<IPTVStepType> completedSteps = EnumSet.noneOf(IPTVStepType.class);
+    private Set<StepTypeStrategy> completedSteps = new HashSet<>();
 
     @Builder.Default
     private List<StepHistory> stepHistories = new ArrayList<>();
@@ -55,15 +56,16 @@ public class Workflow {
         return workflow;
     }
 
-    public void startStep(IPTVStepType stepType) {
+    public void startStep(StepTypeStrategy stepType) {
         if (stepType.canStart(completedSteps) && !activeSteps.contains(stepType)) {
             activeSteps.add(stepType);
-            stepHistories.add(StepHistory.builder()
-                    .stepType(stepType)
+            StepHistory history = StepHistory.builder()
+                    .stepTypeStrategy(stepType)  // StepHistory의 필드명을 stepTypeStrategy로 변경
                     .startTime(LocalDateTime.now())
-                    .build());
+                    .build();
+            stepHistories.add(history);
 
-            if (status == WorkflowStatus.CREATED) {
+            if (WorkflowStatus.CREATED.equals(status)) {  // == 대신 equals 사용
                 status = WorkflowStatus.IN_PROGRESS;
             }
 
@@ -71,8 +73,7 @@ public class Workflow {
         }
     }
 
-
-    public void completeStep(IPTVStepType completedStep) {
+    public void completeStep(StepTypeStrategy completedStep) {
         if (!activeSteps.contains(completedStep)) {
             throw new IllegalStateException("Step is not active: " + completedStep);
         }
@@ -83,7 +84,6 @@ public class Workflow {
 
         activeSteps.remove(completedStep);
         completedSteps.add(completedStep);
-
 
         updateWorkflowStatus();
         this.updatedAt = LocalDateTime.now();
@@ -98,13 +98,13 @@ public class Workflow {
         }
     }
 
-    private StepHistory getCurrentStepHistory(IPTVStepType stepType) {
+    private StepHistory getCurrentStepHistory(StepTypeStrategy stepType) {
         return stepHistories.stream()
-                .filter(history -> history.getStepType() == stepType
+                .filter(history -> history.getStepTypeStrategy().equals(stepType)  // stepType -> stepTypeStrategy
                         && history.getEndTime() == null)
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException(
-                        String.format("Active history not found for step: %s", stepType)));
+                        String.format("Active history not found for step: %s", stepType.getStepName())));
     }
 
     public List<StepHistory> getStepHistories() {

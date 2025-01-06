@@ -1,4 +1,3 @@
-// File: myprj6/workflow-service/src/main/java/com/workflow/infrastructure/persistence/mapper/WorkflowMapper.java
 package com.iptv.workflow.infrastructure.persistence.mapper;
 
 import com.iptv.workflow.api.dto.WorkflowHistoryResponse;
@@ -34,6 +33,45 @@ public class WorkflowMapper {
         return entity;
     }
 
+    private StepHistoryEntity toStepHistoryEntity(StepHistory history, WorkflowEntity workflow) {
+        StepHistoryEntity entity = new StepHistoryEntity();
+        entity.setStepTypeStrategy(history.getStepTypeStrategy());  // Changed from getStepType
+        entity.setStartTime(history.getStartTime());
+        entity.setEndTime(history.getEndTime());
+        entity.setWorkflow(workflow);
+        return entity;
+    }
+
+    private StepHistory toStepHistory(StepHistoryEntity entity) {
+        return StepHistory.builder()
+                .stepTypeStrategy(entity.getStepTypeStrategy())  // Changed from getStepType
+                .startTime(entity.getStartTime())
+                .endTime(entity.getEndTime())
+                .build();
+    }
+
+    public WorkflowResponse toResponse(WorkflowEntity entity) {
+        return WorkflowResponse.builder()
+                .id(entity.getId())
+                .orderNumber(entity.getOrderNumber())
+                .status(entity.getStatus())
+                .activeSteps(entity.getActiveSteps())
+                .completedSteps(entity.getCompletedSteps())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
+                .build();
+    }
+
+    public List<WorkflowHistoryResponse> toHistoryResponses(List<StepHistoryEntity> histories) {
+        return histories.stream()
+                .map(entity -> WorkflowHistoryResponse.builder()
+                        .stepType(entity.getStepTypeStrategy())  // Changed from getStepType
+                        .startTime(entity.getStartTime())
+                        .endTime(entity.getEndTime())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
     public Workflow toDomain(WorkflowEntity entity) {
         return Workflow.builder()
                 .id(entity.getId())
@@ -52,43 +90,5 @@ public class WorkflowMapper {
                         .map(this::toStepHistory)
                         .collect(Collectors.toList()))
                 .build();
-    }
-
-    public WorkflowResponse toResponse(WorkflowEntity entity) {
-        return WorkflowResponse.builder()
-                .id(entity.getId())
-                .orderNumber(entity.getOrderNumber())
-                .status(entity.getStatus())
-                .activeSteps(entity.getActiveSteps())
-                .completedSteps(entity.getCompletedSteps())
-                .createdAt(entity.getCreatedAt())
-                .updatedAt(entity.getUpdatedAt())
-                .build();
-    }
-
-    private StepHistoryEntity toStepHistoryEntity(StepHistory history, WorkflowEntity workflow) {
-        StepHistoryEntity entity = new StepHistoryEntity();
-        entity.setStepType(history.getStepType());
-        entity.setStartTime(history.getStartTime());
-        entity.setEndTime(history.getEndTime());
-        entity.setWorkflow(workflow);
-        return entity;
-    }
-
-    private StepHistory toStepHistory(StepHistoryEntity entity) {
-        return StepHistory.builder()
-                .stepType(entity.getStepType())
-                .startTime(entity.getStartTime())
-                .endTime(entity.getEndTime())
-                .build();
-    }
-    public List<WorkflowHistoryResponse> toHistoryResponses(List<StepHistoryEntity> histories) {
-        return histories.stream()
-                .map(entity -> WorkflowHistoryResponse.builder()
-                        .stepType(entity.getStepType())
-                        .startTime(entity.getStartTime())
-                        .endTime(entity.getEndTime())
-                        .build())
-                .collect(Collectors.toList());
     }
 }

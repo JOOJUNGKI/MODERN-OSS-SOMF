@@ -1,8 +1,10 @@
+// iptv-workflow/src/main/java/com/iptv/workflow/domain/service/WorkflowScheduler.java
 package com.iptv.workflow.domain.service;
 
-import com.workflow.common.event.IPTVStepType;
 import com.workflow.common.event.WorkflowCreationEvent;
 import com.iptv.workflow.common.exception.WorkflowNotFoundException;
+import com.workflow.common.step.ServiceType;
+import com.workflow.common.step.StepTypeStrategy;
 import com.iptv.workflow.domain.model.workflow.ExecutionPlan;
 import com.iptv.workflow.domain.model.workflow.PlanStatus;
 import com.iptv.workflow.domain.model.workflow.Workflow;
@@ -34,6 +36,9 @@ public class WorkflowScheduler {
     public void scheduleWorkflow(WorkflowCreationEvent event) {
         log.debug("Creating new workflow for event: {}", event);
 
+        ServiceType serviceType = ServiceType.fromCode(event.getServiceType());
+        StepTypeStrategy initialStep = getInitialStep(serviceType);
+
         final Workflow workflow = Workflow.create(
                 event.getOrderNumber(),
                 event.getOrderSeq(),
@@ -48,17 +53,25 @@ public class WorkflowScheduler {
         ExecutionPlan plan = ExecutionPlan.createInitialPlan(savedWorkflow);
         activePlans.put(savedWorkflow.getId(), plan);
 
-        Set<IPTVStepType> initialSteps = plan.getNextExecutableSteps();
-        log.info("Starting initial steps {} for workflow {}", initialSteps, savedWorkflow.getId());
+        Set<StepTypeStrategy> initialSteps = plan.getNextExecutableSteps();
+        log.info("Starting initial steps {} for workflow {}",
+                initialSteps.stream().map(StepTypeStrategy::getStepName).collect(Collectors.joining(", ")),
+                savedWorkflow.getId());
 
         initialSteps.forEach(step -> {
             stepRequestPublisher.publishStepRequest(savedWorkflow);
-            log.debug("Published request for step {} of workflow {}", step, savedWorkflow.getId());
+            log.debug("Published request for step {} of workflow {}",
+                    step.getStepName(), savedWorkflow.getId());
         });
     }
 
+    private StepTypeStrategy getInitialStep(ServiceType serviceType) {
+        Class<? extends StepTypeStrategy> stepTypeClass = serviceType.getStepTypeClass();
+        return stepTypeClass.getEnumConstants()[0]; // 첫 번째 단계 반환
+    }
+
     @Transactional
-    public void handleStepCompletion(String workflowId, IPTVStepType completedStep) {
+    public void handleStepCompletion(String workflowId, StepTypeStrategy completedStep) {
         ExecutionPlan plan = activePlans.get(workflowId);
         if (plan == null) {
             log.warn("No active plan found for workflow {}", workflowId);
@@ -67,9 +80,9 @@ public class WorkflowScheduler {
 
         try {
             plan.markStepCompleted(completedStep);
-            log.info("Step {} completed for workflow {}", completedStep, workflowId);
+            log.info("Step {} completed for workflow {}",
+                    completedStep.getStepName(), workflowId);
 
-            // updateWorkflowEntity 내부에서 다음 단계 처리 및 메시지 발행까지 모두 처리
             updateWorkflowEntity(workflowId, completedStep);
 
             if (plan.getStatus() == PlanStatus.COMPLETED) {
@@ -77,20 +90,22 @@ public class WorkflowScheduler {
                 activePlans.remove(workflowId);
             }
         } catch (Exception e) {
-            log.error("Failed to handle step completion for workflow {}: {}", workflowId, e.getMessage(), e);
+            log.error("Failed to handle step completion for workflow {}: {}",
+                    workflowId, e.getMessage(), e);
             handleStepFailure(workflowId, completedStep, e);
         }
     }
 
     @Transactional
-    public void handleStepFailure(String workflowId, IPTVStepType failedStep, Exception error) {
+    public void handleStepFailure(String workflowId, StepTypeStrategy failedStep, Exception error) {
         ExecutionPlan plan = activePlans.get(workflowId);
         if (plan == null) {
             log.warn("No active plan found for workflow {}", workflowId);
             return;
         }
 
-        log.error("Step {} failed for workflow {}: {}", failedStep, workflowId, error.getMessage());
+        log.error("Step {} failed for workflow {}: {}",
+                failedStep.getStepName(), workflowId, error.getMessage());
         plan.markStepFailed(failedStep);
 
         try {
@@ -105,33 +120,40 @@ public class WorkflowScheduler {
         }
     }
 
-    private void updateWorkflowEntity(String workflowId, IPTVStepType completedStep) {
+    private void updateWorkflowEntity(String workflowId, StepTypeStrategy completedStep) {
         WorkflowEntity entity = workflowRepository.findById(workflowId)
                 .orElseThrow(() -> new WorkflowNotFoundException(workflowId));
         Workflow workflow = workflowMapper.toDomain(entity);
 
-        log.debug("[Debug] Before completion - Active steps: {}, Completed steps: {}",
-                workflow.getActiveSteps(), workflow.getCompletedSteps());
+        log.debug("Before completion - Active steps: {}, Completed steps: {}",
+                workflow.getActiveSteps().stream().map(StepTypeStrategy::getStepName).collect(Collectors.joining(", ")),
+                workflow.getCompletedSteps().stream().map(StepTypeStrategy::getStepName).collect(Collectors.joining(", ")));
 
         workflow.completeStep(completedStep);
 
-        Set<IPTVStepType> nextSteps = completedStep.getNextSteps();
-        log.debug("[Debug] Next steps from getNextSteps: {}", nextSteps);
+        Set<? extends StepTypeStrategy> nextSteps = completedStep.getNextSteps();
+        log.debug("Next steps from getNextSteps: {}",
+                nextSteps.stream().map(StepTypeStrategy::getStepName).collect(Collectors.joining(", ")));
 
-        Set<IPTVStepType> executableSteps = nextSteps.stream()
+        Set<StepTypeStrategy> executableSteps = nextSteps.stream()
                 .filter(step -> step.canStart(workflow.getCompletedSteps()))
                 .collect(Collectors.toSet());
-        log.debug("[Debug] Filtered executable steps: {}", executableSteps);
+
+        log.debug("Filtered executable steps: {}",
+                executableSteps.stream().map(StepTypeStrategy::getStepName).collect(Collectors.joining(", ")));
 
         executableSteps.forEach(step -> {
             workflow.startStep(step);
-            log.debug("[Debug] Starting step {} for workflow {}", step, workflowId);
+            log.debug("Starting step {} for workflow {}",
+                    step.getStepName(), workflowId);
             stepRequestPublisher.publishStepRequest(workflow);
-            log.debug("[Debug] Published request for step {} of workflow {}", step, workflowId);
+            log.debug("Published request for step {} of workflow {}",
+                    step.getStepName(), workflowId);
         });
 
-        log.debug("[Debug] After update - Active steps: {}, Completed steps: {}",
-                workflow.getActiveSteps(), workflow.getCompletedSteps());
+        log.debug("After update - Active steps: {}, Completed steps: {}",
+                workflow.getActiveSteps().stream().map(StepTypeStrategy::getStepName).collect(Collectors.joining(", ")),
+                workflow.getCompletedSteps().stream().map(StepTypeStrategy::getStepName).collect(Collectors.joining(", ")));
 
         workflowRepository.save(workflowMapper.toEntity(workflow));
     }

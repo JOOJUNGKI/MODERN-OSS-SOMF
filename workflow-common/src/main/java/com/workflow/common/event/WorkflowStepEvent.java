@@ -1,6 +1,7 @@
 package com.workflow.common.event;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.workflow.common.step.ServiceType;
+import com.workflow.common.step.StepTypeStrategy;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,15 +15,26 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class WorkflowStepEvent {
     private String workflowId;
-    private StepType stepType;
-    private String payload;
+    private ServiceType serviceType;
+    private String stepTypeName;
     private String orderNumber;
     private Integer orderSeq;
-    private String serviceType;
     private String orderType;
     private String custName;
     private String address;
-
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime timestamp;
+
+    public StepTypeStrategy getStepType() {
+        Class<? extends StepTypeStrategy> stepTypeClass = serviceType.getStepTypeClass();
+        for (StepTypeStrategy step : stepTypeClass.getEnumConstants()) {
+            if (step.getStepName().equals(stepTypeName)) {
+                return step;
+            }
+        }
+        throw new IllegalArgumentException("Unknown step type: " + stepTypeName);
+    }
+
+    public void setStepType(StepTypeStrategy stepType) {
+        this.stepTypeName = stepType.getStepName();
+    }
 }
