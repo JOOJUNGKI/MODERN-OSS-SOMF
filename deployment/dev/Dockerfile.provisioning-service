@@ -6,6 +6,6 @@ RUN ./gradlew :provisioning-service:bootJar
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 COPY --from=builder /app/provisioning-service/build/libs/*.jar app.jar
-EXPOSE 8082
+EXPOSE 8080
 ENV SPRING_PROFILES_ACTIVE=dev
 ENTRYPOINT ["java", "-Dspring.profiles.active=dev", "-jar", "app.jar"]

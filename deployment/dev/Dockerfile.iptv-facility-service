@@ -1,11 +1,11 @@
 FROM eclipse-temurin:17-jdk-alpine as builder
 WORKDIR /app
 COPY . .
-RUN ./gradlew :internet-facility-service:bootJar
+RUN ./gradlew :iptv-facility-service:bootJar
 
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
-COPY --from=builder /app/internet-facility-service/build/libs/*.jar app.jar
+COPY --from=builder /app/iptv-facility-service/build/libs/*.jar app.jar
 EXPOSE 8080
 ENV SPRING_PROFILES_ACTIVE=dev
 ENTRYPOINT ["java", "-Dspring.profiles.active=dev", "-jar", "app.jar"]
