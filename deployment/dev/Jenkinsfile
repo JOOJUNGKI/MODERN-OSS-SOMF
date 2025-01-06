@@ -152,6 +152,7 @@ podTemplate(
             }
         }
 
+        /*
         try {
             stage('Build Applications') {
                 container('gradle') {
@@ -167,7 +168,7 @@ podTemplate(
                 }
                 checkError("Application Build Failed")
             }
-
+            */
             stage('Build Container Images') {
                 container('podman') {
                     changedServices.each { service ->
