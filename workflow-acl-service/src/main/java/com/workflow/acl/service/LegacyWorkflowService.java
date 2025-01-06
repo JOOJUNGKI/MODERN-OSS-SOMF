@@ -17,23 +17,37 @@ import java.util.UUID;
 public class LegacyWorkflowService {
     private final KafkaTemplate<String, WorkflowCreationEvent> kafkaTemplate;
 
-    @Value("${kafka.topics.creation.request}")
-    private String creationTopic;
+    @Value("${kafka.topics.internet.creation.request}")
+    private String internetCreationTopic;
+
+    @Value("${kafka.topics.iptv.creation.request}")
+    private String iptvCreationTopic;
 
     public String requestWorkflowCreation(LegacyWorkflowRequest request) {
         String requestId = UUID.randomUUID().toString();
         WorkflowCreationEvent event = createEvent(requestId, request);
 
-        kafkaTemplate.send(creationTopic, requestId, event)
+        String topic = getTopicByServiceType(request.getServiceType());
+
+        kafkaTemplate.send(topic, requestId, event)
                 .whenComplete((result, ex) -> {
                     if (ex == null) {
-                        log.debug("Successfully sent event: {}", event);
+                        log.debug("Successfully sent event to {}: {}", topic, event);
                     } else {
-                        log.error("Failed to send event: {}", event, ex);
+                        log.error("Failed to send event to {}: {}", topic, event, ex);
                     }
                 });
 
         return requestId;
+    }
+
+    private String getTopicByServiceType(String serviceType) {
+        return switch (serviceType) {
+            case "Internet" -> internetCreationTopic;
+            case "IPTV" -> iptvCreationTopic;
+            default -> throw new IllegalArgumentException(
+                    "Unsupported service type: " + serviceType);
+        };
     }
 
     private WorkflowCreationEvent createEvent(String requestId, LegacyWorkflowRequest request) {

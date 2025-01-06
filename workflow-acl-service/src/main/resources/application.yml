@@ -14,8 +14,12 @@ spring:
 
 kafka:
   topics:
-    creation:
-      request: ${KAFKA_TOPIC_CREATION_REQUEST:workflow.creation.request}
+    internet:
+      creation:
+        request: ${KAFKA_TOPIC_INTERNET_CREATION_REQUEST:workflow.internet.creation.request}
+    iptv:
+      creation:
+        request: ${KAFKA_TOPIC_IPTV_CREATION_REQUEST:workflow.iptv.creation.request}
 
 springdoc:
   api-docs:

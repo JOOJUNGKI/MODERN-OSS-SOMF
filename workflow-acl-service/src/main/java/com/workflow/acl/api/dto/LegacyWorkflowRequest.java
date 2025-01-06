@@ -19,8 +19,8 @@ public class LegacyWorkflowRequest {
     private Integer orderSeq;
     
     @NotBlank(message = "서비스유형은 필수입니다")
-    @Pattern(regexp = "Internet", message = "서비스유형은 'Internet'만 가능합니다")
-    @Schema(description = "서비스유형", example = "Internet", allowableValues = {"Internet"})
+    @Pattern(regexp = "^(Internet|IPTV)$", message = "서비스유형은 'Internet', 'IPTV' 만 가능합니다")
+    @Schema(description = "서비스유형", example = "Internet", allowableValues = {"Internet","IPTV"})
     private String serviceType;
     
     @NotBlank(message = "주문유형은 필수입니다")
