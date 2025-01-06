@@ -36,8 +36,6 @@ spring:
         jdbc.batch_size: 50
         order_inserts: true
         order_updates: true
-        # 낙관적 락 설정
-        jdbc.batch_versioned_data: true
 
 kafka:
   topics:
