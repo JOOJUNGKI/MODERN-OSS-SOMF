@@ -1,7 +1,7 @@
-package com.workflow.iptv.certification.infrastructure.persistence.repository;
+package com.workflow.iptv.site.infrastructure.persistence.repository;
 
 import com.workflow.common.event.StepType;
-import com.workflow.iptv.certification.infrastructure.persistence.entity.StepHistoryEntity;
+import com.workflow.iptv.site.infrastructure.persistence.entity.StepHistoryEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,8 +1,8 @@
 
-package com.workflow.iptv.certification.infrastructure.messaging.consumer;
+package com.workflow.iptv.site.infrastructure.messaging.consumer;
 
 import com.workflow.common.event.WorkflowStepEvent;
-import com.workflow.iptv.certification.domain.service.IptvCertificationService;
+import com.workflow.iptv.site.domain.service.IptvCertificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;

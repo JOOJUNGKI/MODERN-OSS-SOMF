@@ -1,10 +1,10 @@
-package com.workflow.iptv.certification.domain.service;
+package com.workflow.iptv.site.domain.service;
 
 import com.workflow.common.event.WorkflowStepEvent;
-import com.workflow.iptv.certification.infrastructure.messaging.publisher.WorkflowStepResponsePublisher;
-import com.workflow.iptv.certification.infrastructure.persistence.entity.StepHistoryEntity;
-import com.workflow.iptv.certification.infrastructure.persistence.mapper.StepMapper;
-import com.workflow.iptv.certification.infrastructure.persistence.repository.StepHistoryRepository;
+import com.workflow.iptv.site.infrastructure.messaging.publisher.WorkflowStepResponsePublisher;
+import com.workflow.iptv.site.infrastructure.persistence.entity.StepHistoryEntity;
+import com.workflow.iptv.site.infrastructure.persistence.mapper.StepMapper;
+import com.workflow.iptv.site.infrastructure.persistence.repository.StepHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class IptvCertificationService {
+public class IptvSiteService {
 
     private final StepHistoryRepository stepHistoryRepository;
 

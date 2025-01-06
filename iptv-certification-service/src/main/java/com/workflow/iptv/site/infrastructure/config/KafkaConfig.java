@@ -1,5 +1,5 @@
 
-package com.workflow.iptv.certification.infrastructure.config;
+package com.workflow.iptv.site.infrastructure.config;
 
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.beans.factory.annotation.Value;

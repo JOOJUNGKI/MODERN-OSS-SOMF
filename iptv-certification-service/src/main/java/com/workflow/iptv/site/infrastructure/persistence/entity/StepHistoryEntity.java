@@ -1,5 +1,5 @@
 
-package com.workflow.iptv.certification.infrastructure.persistence.entity;
+package com.workflow.iptv.site.infrastructure.persistence.entity;
 
 import com.workflow.common.model.step.StepHistoryEntityBase;
 import jakarta.persistence.*;

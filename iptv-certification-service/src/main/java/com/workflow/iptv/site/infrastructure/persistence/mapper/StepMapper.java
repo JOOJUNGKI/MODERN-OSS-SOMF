@@ -1,9 +1,9 @@
 
-package com.workflow.iptv.certification.infrastructure.persistence.mapper;
+package com.workflow.iptv.site.infrastructure.persistence.mapper;
 
 import com.workflow.common.event.WorkflowStepEvent;
 import com.workflow.common.model.step.StepHistory;
-import com.workflow.iptv.certification.infrastructure.persistence.entity.StepHistoryEntity;
+import com.workflow.iptv.site.infrastructure.persistence.entity.StepHistoryEntity;
 import org.springframework.stereotype.Component;
 
 @Component

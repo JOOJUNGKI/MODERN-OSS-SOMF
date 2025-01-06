@@ -1,4 +1,4 @@
-package com.workflow.iptv.certification;
+package com.workflow.iptv.site;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

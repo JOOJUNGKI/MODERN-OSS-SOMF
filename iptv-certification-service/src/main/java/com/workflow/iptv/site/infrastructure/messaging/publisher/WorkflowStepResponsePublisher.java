@@ -1,5 +1,5 @@
 
-package com.workflow.iptv.certification.infrastructure.messaging.publisher;
+package com.workflow.iptv.site.infrastructure.messaging.publisher;
 
 import com.workflow.common.event.WorkflowStepEvent;
 import lombok.RequiredArgsConstructor;
