@@ -1,0 +1,57 @@
+server:
+  port: ${SERVER_PORT:8087}
+
+spring:
+  application:
+    name: internet-master-service
+  kafka:
+    bootstrap-servers: localhost:29092
+    consumer:
+      group-id: ${spring.application.name}-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.workflow.common.event"
+        spring.json.type.mapping: >
+          workflow-step:com.workflow.common.event.WorkflowStepEvent,
+          workflow-creation:com.workflow.common.event.WorkflowCreationEvent
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.type.mappings: >
+          workflow-step:com.workflow.common.event.WorkflowStepEvent,
+          workflow-creation:com.workflow.common.event.WorkflowCreationEvent
+
+  datasource:
+    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/workflow_db}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+kafka:
+  topics:
+    internet:
+      step:
+        request: ${KAFKA_TOPIC_INTERNET_STEP_REQUEST:workflow.internet.step.master.request}
+        response: ${KAFKA_TOPIC_INTERNET_STEP_RESPONSE:workflow.internet.step.master.response}
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    try-it-out-enabled: true
+
+logging:
+  level:
+    com.workflow: ${LOG_LEVEL:DEBUG}

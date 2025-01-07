@@ -1,0 +1,41 @@
+server:
+  port: ${SERVER_PORT:8081}
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: workflow-acl-service
+  datasource:
+    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/workflow_db}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+  kafka:
+    bootstrap-servers: localhost:29092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+kafka:
+  topics:
+    internet:
+      creation:
+        request: ${KAFKA_TOPIC_INTERNET_CREATION_REQUEST:workflow.internet.creation.request}
+    iptv:
+      creation:
+        request: ${KAFKA_TOPIC_IPTV_CREATION_REQUEST:workflow.iptv.creation.request}
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    try-it-out-enabled: true
+    operations-sorter: alpha
+    tags-sorter: alpha
+    doc-expansion: none
+
+logging:
+  level:
+    com.workflow.acl: ${LOG_LEVEL:DEBUG}
