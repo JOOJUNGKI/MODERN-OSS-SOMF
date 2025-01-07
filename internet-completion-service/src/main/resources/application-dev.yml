@@ -2,10 +2,13 @@ server:
   port: ${SERVER_PORT:8080}
 
 spring:
+  config:
+    activate:
+      on-profile: dev
   application:
-    name: workflow-service
+    name: internet-completion-service
   kafka:
-    bootstrap-servers: localhost:29092
+    bootstrap-servers: 20.249.185.137:9092
     consumer:
       group-id: ${spring.application.name}-group
       auto-offset-reset: earliest
@@ -13,17 +16,21 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "com.workflow.common.event"
-        spring.json.type.mapping: "workflow-creation:com.workflow.common.event.WorkflowCreationEvent,workflow-step:com.workflow.common.event.WorkflowStepEvent"
+        spring.json.type.mapping: >
+          workflow-step:com.workflow.common.event.WorkflowStepEvent,
+          workflow-creation:com.workflow.common.event.WorkflowCreationEvent
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
-        spring.json.type.mapping: "workflow-creation:com.workflow.common.event.WorkflowCreationEvent,workflow-step:com.workflow.common.event.WorkflowStepEvent"
-
+        spring.json.type.mappings: >
+          workflow-step:com.workflow.common.event.WorkflowStepEvent,
+          workflow-creation:com.workflow.common.event.WorkflowCreationEvent
+          
   datasource:
-    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/workflow_db}
-    username: ${POSTGRES_USER:postgres}
-    password: ${POSTGRES_PASSWORD:password}
+    url: ${POSTGRES_URL:jdbc:postgresql://4.230.157.136:5432/lego-db}
+    username: ${POSTGRES_USER:lego-user}
+    password: ${POSTGRES_PASSWORD:lego-pass}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -39,12 +46,10 @@ spring:
 
 kafka:
   topics:
-    creation:
-      request: ${KAFKA_TOPIC_CREATION_REQUEST:workflow.creation.request}
     internet:
       step:
-        request: ${KAFKA_TOPIC_INTERNET_STEP_REQUEST:workflow.internet.step.acquisition.request}
-        response: ${KAFKA_TOPIC_INTERNET_STEP_RESPONSE:workflow.internet.step.acquisition.response}
+        request: ${KAFKA_TOPIC_INTERNET_STEP_REQUEST:workflow.internet.step.completion.request}
+        response: ${KAFKA_TOPIC_INTERNET_STEP_RESPONSE:workflow.internet.step.completion.response}
 
 spring-doc:
   api-docs:
