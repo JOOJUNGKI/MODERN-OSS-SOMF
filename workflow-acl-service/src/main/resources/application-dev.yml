@@ -12,14 +12,12 @@ spring:
       on-profile: dev
   application:
     name: workflow-acl-service
-  kafka:
-#    bootstrap-servers: kafka.lego-kafka.svc.cluster.local:9092
-    bootstrap-servers: 4.230.148.194:9092
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 kafka:
+  bootstrap-servers: 4.230.148.194:9092
+  producer:
+    key-serializer: org.apache.kafka.common.serialization.StringSerializer
+    value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
   topics:
     internet:
       creation:
@@ -41,31 +39,3 @@ springdoc:
 logging:
   level:
     com.workflow.acl: ${LOG_LEVEL:DEBUG}
-
-#
-#      management:
-#        endpoints:
-#          web:
-#            exposure:
-#              include: health,metrics,prometheus
-#        endpoint:
-#          health:
-#            show-details: always
-#          metrics:
-#            enabled: true
-#          prometheus:
-#            enabled: true
-#        metrics:
-#          tags:
-#            app: ${spring.application.name}
-#            instance: ${HOSTNAME:localhost}:${server.port}
-#          distribution:
-#            slo:
-#              http:
-#                server:
-#                  requests: 50ms,100ms,200ms,500ms,1s
-#          enable:
-#            jvm: true
-#            process: true
-#            system: true
-#            logback: true
