@@ -8,7 +8,8 @@ spring:
   application:
     name: iptv-site-service
   kafka:
-    bootstrap-servers: 20.249.185.137:9092
+    bootstrap-servers: kafka.lego-kafka.svc.cluster.local:9092
+#    bootstrap-servers: 20.249.185.137:9092
     consumer:
       group-id: ${spring.application.name}-group
       auto-offset-reset: earliest

@@ -8,7 +8,8 @@ spring:
   application:
     name: internet-master-service
   kafka:
-    bootstrap-servers: 20.249.185.137:9092
+    bootstrap-servers: kafka.lego-kafka.svc.cluster.local:9092
+#    bootstrap-servers: 20.249.185.137:9092
     consumer:
       group-id: ${spring.application.name}-group
       auto-offset-reset: earliest
@@ -28,7 +29,8 @@ spring:
           workflow-creation:com.workflow.common.event.WorkflowCreationEvent
           
   datasource:
-    url: ${POSTGRES_URL:jdbc:postgresql://4.230.157.136:5432/lego-db}
+    url: jdbc:postgresql://postgres-internet-master-postgresql.lego-db.svc.cluster.local:5432/dbname
+#    url: ${POSTGRES_URL:jdbc:postgresql://4.230.157.136:5432/lego-db}
     username: ${POSTGRES_USER:lego-user}
     password: ${POSTGRES_PASSWORD:lego-pass}
     driver-class-name: org.postgresql.Driver
