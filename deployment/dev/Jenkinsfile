@@ -14,7 +14,7 @@ def PIPELINE_ID = "modern-oss-${env.BUILD_NUMBER}"
 def getChangedServices() {
     def services = [
                     // 'provisioning-service',
-                    // 'workflow-service',
+                    // 'internet-workflow-service',
                     // 'internet-acquisition-service',
                     // 'internet-completion-service',
                     // 'internet-equipment-service',
@@ -26,7 +26,7 @@ def getChangedServices() {
                     //'iptv-completion-service',
                     //'iptv-master-service',
                     //'iptv-site-service',
-                    //'iptv-workflow-serivce',
+                    'iptv-workflow-serivce',
                     'workflow-acl-service'
                 ]
     
