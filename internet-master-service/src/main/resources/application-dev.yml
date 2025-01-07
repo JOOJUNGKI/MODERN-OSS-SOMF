@@ -63,3 +63,30 @@ spring-doc:
 logging:
   level:
     com.workflow: ${LOG_LEVEL:DEBUG}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  metrics:
+    tags:
+      app: ${spring.application.name}
+      instance: ${HOSTNAME:localhost}:${server.port}
+    distribution:
+      slo:
+        http:
+          server:
+            requests: 50ms,100ms,200ms,500ms,1s
+    enable:
+      jvm: true
+      process: true
+      system: true
+      logback: true
