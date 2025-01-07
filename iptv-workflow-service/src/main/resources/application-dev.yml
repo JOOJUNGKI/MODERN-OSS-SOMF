@@ -50,11 +50,9 @@ spring:
 
 kafka:
   topics:
-    creation:
-      request: ${KAFKA_TOPIC_CREATION_REQUEST:workflow.creation.request}
-    step:
-      request: ${KAFKA_TOPIC_STEP_REQUEST:workflow.internet.step.request}
-      response: ${KAFKA_TOPIC_STEP_RESPONSE:workflow.internet.step.response}
+    iptv:
+      creation:
+        request: ${KAFKA_TOPIC_IPTV_CREATION_REQUEST:workflow.iptv.creation.request}
 
 springdoc:
   api-docs:
