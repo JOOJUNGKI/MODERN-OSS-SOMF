@@ -9,24 +9,18 @@ spring:
       - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
   config:
     activate:
-      on-profile: dev
+      on-profile: local
   application:
     name: workflow-acl-service
 
-kafka:
-  bootstrap-servers: 4.230.148.194:9092
-  producer:
-    key-serializer: org.apache.kafka.common.serialization.StringSerializer
-    value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-  topics:
-    internet:
-      creation:
-        request: ${KAFKA_TOPIC_INTERNET_CREATION_REQUEST:workflow.internet.creation.request}
-    iptv:
-      creation:
-        request: ${KAFKA_TOPIC_IPTV_CREATION_REQUEST:workflow.iptv.creation.request}
+  kafka:
+    bootstrap-servers: localhost:29092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
-springdoc:
+
+spring-doc:
   api-docs:
     enabled: true
   swagger-ui:
@@ -35,6 +29,15 @@ springdoc:
     operations-sorter: alpha
     tags-sorter: alpha
     doc-expansion: none
+
+kafka:
+  topics:
+    internet:
+      creation:
+        request: ${KAFKA_TOPIC_INTERNET_CREATION_REQUEST:workflow.internet.creation.request}
+    iptv:
+      creation:
+        request: ${KAFKA_TOPIC_IPTV_CREATION_REQUEST:workflow.iptv.creation.request}
 
 logging:
   level:
