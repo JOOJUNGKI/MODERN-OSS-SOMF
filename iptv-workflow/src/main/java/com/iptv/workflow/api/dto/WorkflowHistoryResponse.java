@@ -2,7 +2,6 @@
 package com.iptv.workflow.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-//import com.workflow.common.event.IPTVStepType;
 import com.workflow.common.step.StepTypeStrategy;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;

@@ -28,9 +28,9 @@ spring:
           workflow-creation:com.workflow.common.event.WorkflowCreationEvent
           
   datasource:
-    url: ${POSTGRES_URL:jdbc:postgresql://20.249.204.114:5432/lego_db}
-    username: ${POSTGRES_USER:lego_user}
-    password: ${POSTGRES_PASSWORD:lego_pass}
+    url: ${POSTGRES_URL:jdbc:postgresql://4.230.157.136:5432/lego-db}
+    username: ${POSTGRES_USER:lego-user}
+    password: ${POSTGRES_PASSWORD:lego-pass}
     driver-class-name: org.postgresql.Driver
 
   jpa:
