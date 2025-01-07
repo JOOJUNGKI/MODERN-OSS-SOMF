@@ -6,7 +6,7 @@ spring:
     activate:
       on-profile: dev
   application:
-    name: internet-workflow-service
+    name: internet-site-service
   kafka:
     bootstrap-servers: 20.249.185.137:9092
     consumer:
@@ -16,13 +16,17 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "com.workflow.common.event"
-        spring.json.type.mapping: "workflow-creation:com.workflow.common.event.WorkflowCreationEvent,workflow-step:com.workflow.common.event.WorkflowStepEvent"
+        spring.json.type.mapping: >
+          workflow-step:com.workflow.common.event.WorkflowStepEvent,
+          workflow-creation:com.workflow.common.event.WorkflowCreationEvent
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
-        spring.json.type.mapping: "workflow-creation:com.workflow.common.event.WorkflowCreationEvent,workflow-step:com.workflow.common.event.WorkflowStepEvent"
-
+        spring.json.type.mappings: >
+          workflow-step:com.workflow.common.event.WorkflowStepEvent,
+          workflow-creation:com.workflow.common.event.WorkflowCreationEvent
+          
   datasource:
     url: ${POSTGRES_URL:jdbc:postgresql://4.230.157.136:5432/lego-db}
     username: ${POSTGRES_USER:lego-user}
@@ -39,16 +43,13 @@ spring:
         jdbc.batch_size: 50
         order_inserts: true
         order_updates: true
-        # 낙관적 락 설정
-        jdbc.batch_versioned_data: true
 
 kafka:
   topics:
-    creation:
-      request: ${KAFKA_TOPIC_CREATION_REQUEST:workflow.creation.request}
-    step:
-      request: ${KAFKA_TOPIC_STEP_REQUEST:workflow.internet.step.request}
-      response: ${KAFKA_TOPIC_STEP_RESPONSE:workflow.internet.step.response}
+    internet:
+      step:
+        request: ${KAFKA_TOPIC_INTERNET_STEP_REQUEST:workflow.internet.step.site.request}
+        response: ${KAFKA_TOPIC_INTERNET_STEP_RESPONSE:workflow.internet.step.site.response}
 
 spring-doc:
   api-docs:
