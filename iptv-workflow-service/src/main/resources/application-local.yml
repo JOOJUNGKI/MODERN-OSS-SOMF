@@ -1,9 +1,12 @@
 server:
-  port: ${SERVER_PORT:8080}
+  port: ${SERVER_PORT:9099}
 
 spring:
+  config:
+    activate:
+      on-profile: local
   application:
-    name: workflow-service
+    name: iptv-workflow-service
   kafka:
     bootstrap-servers: localhost:29092
     consumer:
@@ -12,14 +15,18 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
-        spring.json.trusted.packages: "com.workflow.common.event"
-        spring.json.type.mapping: "workflow-creation:com.workflow.common.event.WorkflowCreationEvent,workflow-step:com.workflow.common.event.WorkflowStepEvent"
+        spring.json.trusted.packages: "com.workflow.common.event, com.workflow.common.step"
+        spring.json.type.mapping: >
+          workflow-creation:com.workflow.common.event.WorkflowCreationEvent,
+          workflow-step:com.workflow.common.event.WorkflowStepEvent
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
-        spring.json.type.mapping: "workflow-creation:com.workflow.common.event.WorkflowCreationEvent,workflow-step:com.workflow.common.event.WorkflowStepEvent"
-
+        spring.json.type.mapping: >
+          workflow-creation:com.workflow.common.event.WorkflowCreationEvent,
+          workflow-step:com.workflow.common.event.WorkflowStepEvent,
+          iptv-step:com.workflow.common.event.IPTVStepType
   datasource:
     url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/workflow_db}
     username: ${POSTGRES_USER:postgres}
@@ -36,17 +43,15 @@ spring:
         jdbc.batch_size: 50
         order_inserts: true
         order_updates: true
+        jdbc.batch_versioned_data: true
 
 kafka:
   topics:
-    creation:
-      request: ${KAFKA_TOPIC_CREATION_REQUEST:workflow.creation.request}
-    internet:
-      step:
-        request: ${KAFKA_TOPIC_INTERNET_STEP_REQUEST:workflow.internet.step.acquisition.request}
-        response: ${KAFKA_TOPIC_INTERNET_STEP_RESPONSE:workflow.internet.step.acquisition.response}
+    iptv:
+      creation:
+        request: ${KAFKA_TOPIC_IPTV_CREATION_REQUEST:workflow.iptv.creation.request}
 
-spring-doc:
+springdoc:
   api-docs:
     enabled: true
   swagger-ui:

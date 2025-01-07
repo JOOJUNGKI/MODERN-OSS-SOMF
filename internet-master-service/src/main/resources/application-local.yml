@@ -2,6 +2,9 @@ server:
   port: ${SERVER_PORT:8087}
 
 spring:
+  config:
+    activate:
+      on-profile: local
   application:
     name: internet-master-service
   kafka:

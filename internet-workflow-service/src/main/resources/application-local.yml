@@ -2,6 +2,9 @@ server:
   port: ${SERVER_PORT:8080}
 
 spring:
+  config:
+    activate:
+      on-profile: local
   application:
     name: internet-workflow-service
   kafka:
