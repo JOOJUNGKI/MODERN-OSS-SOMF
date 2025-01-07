@@ -35,6 +35,7 @@ springdoc:
     operations-sorter: alpha
     tags-sorter: alpha
     doc-expansion: none
+    use-root-path: true
 
 logging:
   level:
