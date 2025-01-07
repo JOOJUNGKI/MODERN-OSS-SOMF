@@ -1,4 +1,4 @@
 rootProject.name = 'workflow-system'
 include 'workflow-common', 'workflow-acl-service'
 include 'internet-workflow-service', 'internet-acquisition-service', 'internet-facility-service', 'internet-site-service', 'internet-equipment-service', 'internet-master-service', 'internet-completion-service'
-include 'iptv-workflow', 'iptv-acquisition-service', 'iptv-certification-service', 'iptv-site-service', 'iptv-master-service', 'iptv-completion-service'
+include 'iptv-workflow-service', 'iptv-acquisition-service', 'iptv-certification-service', 'iptv-site-service', 'iptv-master-service', 'iptv-completion-service'

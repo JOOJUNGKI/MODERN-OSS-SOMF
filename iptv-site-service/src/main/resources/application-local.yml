@@ -2,6 +2,9 @@ server:
   port: ${SERVER_PORT:9002}
 
 spring:
+  config:
+    activate:
+      on-profile: local
   application:
     name: iptv-site-service
   kafka:

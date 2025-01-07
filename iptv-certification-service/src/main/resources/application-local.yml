@@ -2,6 +2,9 @@ server:
   port: ${SERVER_PORT:9001}
 
 spring:
+  config:
+    activate:
+      on-profile: local
   application:
     name: iptv-certification-service
   kafka:
