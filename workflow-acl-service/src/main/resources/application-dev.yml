@@ -12,12 +12,13 @@ spring:
       on-profile: dev
   application:
     name: workflow-acl-service
+  kafka:
+    bootstrap-servers: 4.230.148.194:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 kafka:
-  bootstrap-servers: 4.230.148.194:9092
-  producer:
-    key-serializer: org.apache.kafka.common.serialization.StringSerializer
-    value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
   topics:
     internet:
       creation:
@@ -35,7 +36,6 @@ springdoc:
     operations-sorter: alpha
     tags-sorter: alpha
     doc-expansion: none
-    use-root-path: true
 
 logging:
   level:
