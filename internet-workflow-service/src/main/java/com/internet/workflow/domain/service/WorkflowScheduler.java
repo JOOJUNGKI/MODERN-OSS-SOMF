@@ -1,18 +1,18 @@
-// iptv-workflow/src/main/java/com/iptv/workflow/domain/service/WorkflowScheduler.java
-package com.iptv.workflow.domain.service;
+package com.internet.workflow.domain.service;
 
+import com.workflow.common.event.StepType;
 import com.workflow.common.event.WorkflowCreationEvent;
-import com.iptv.workflow.common.exception.WorkflowNotFoundException;
+import com.internet.workflow.common.exception.WorkflowNotFoundException;
+import com.internet.workflow.domain.model.workflow.ExecutionPlan;
+import com.internet.workflow.domain.model.workflow.PlanStatus;
+import com.internet.workflow.domain.model.workflow.Workflow;
+import com.internet.workflow.domain.model.workflow.WorkflowStatus;
+import com.internet.workflow.infrastructure.messaging.publisher.WorkflowStepRequestPublisher;
+import com.internet.workflow.infrastructure.persistence.entity.WorkflowEntity;
+import com.internet.workflow.infrastructure.persistence.mapper.WorkflowMapper;
+import com.internet.workflow.infrastructure.persistence.repository.WorkflowRepository;
 import com.workflow.common.step.ServiceType;
 import com.workflow.common.step.StepTypeStrategy;
-import com.iptv.workflow.domain.model.workflow.ExecutionPlan;
-import com.iptv.workflow.domain.model.workflow.PlanStatus;
-import com.iptv.workflow.domain.model.workflow.Workflow;
-import com.iptv.workflow.domain.model.workflow.WorkflowStatus;
-import com.iptv.workflow.infrastructure.messaging.publisher.WorkflowStepRequestPublisher;
-import com.iptv.workflow.infrastructure.persistence.entity.WorkflowEntity;
-import com.iptv.workflow.infrastructure.persistence.mapper.WorkflowMapper;
-import com.iptv.workflow.infrastructure.persistence.repository.WorkflowRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,9 +34,10 @@ public class WorkflowScheduler {
 
     @Transactional
     public void scheduleWorkflow(WorkflowCreationEvent event) {
-        log.info("Creating new workflow for event: {}", event);
+        log.debug("Creating new workflow for event: {}", event);
 
         ServiceType serviceType = ServiceType.fromCode(event.getServiceType());
+
         final Workflow workflow = Workflow.create(
                 event.getOrderNumber(),
                 event.getOrderSeq(),
@@ -70,26 +71,34 @@ public class WorkflowScheduler {
 
     @Transactional
     public void handleStepCompletion(String workflowId, StepTypeStrategy completedStep) {
+        log.info("[Scheduler] Starting handleStepCompletion: workflowId={}, step={}",
+                workflowId, completedStep.getStepName());
+
         ExecutionPlan plan = activePlans.get(workflowId);
         if (plan == null) {
-            log.warn("No active plan found for workflow {}", workflowId);
+            log.warn("[Scheduler] No active plan found for workflow {}", workflowId);
             return;
         }
 
         try {
-            plan.markStepCompleted(completedStep);
-            log.info("Step {} completed for workflow {}",
-                    completedStep.getStepName(), workflowId);
+            log.info("[Scheduler] Marking step as completed: workflowId={}, step={}",
+                    workflowId, completedStep.getStepName());
 
+            plan.markStepCompleted(completedStep);
+
+            log.info("[Scheduler] Updating workflow entity");
             updateWorkflowEntity(workflowId, completedStep);
 
             if (plan.getStatus() == PlanStatus.COMPLETED) {
-                log.info("Workflow {} completed successfully", workflowId);
+                log.info("[Scheduler] Workflow {} completed successfully", workflowId);
                 activePlans.remove(workflowId);
             }
+
+            log.info("[Scheduler] Successfully completed step handling: workflowId={}, step={}",
+                    workflowId, completedStep.getStepName());
         } catch (Exception e) {
-            log.error("Failed to handle step completion for workflow {}: {}",
-                    workflowId, e.getMessage(), e);
+            log.error("[Scheduler] Failed to handle step completion: workflowId={}, step={}, error={}",
+                    workflowId, completedStep.getStepName(), e.getMessage(), e);
             handleStepFailure(workflowId, completedStep, e);
         }
     }
@@ -118,6 +127,7 @@ public class WorkflowScheduler {
         }
     }
 
+    @Transactional
     private void updateWorkflowEntity(String workflowId, StepTypeStrategy completedStep) {
         WorkflowEntity entity = workflowRepository.findById(workflowId)
                 .orElseThrow(() -> new WorkflowNotFoundException(workflowId));
@@ -127,32 +137,38 @@ public class WorkflowScheduler {
                 workflow.getActiveSteps().stream().map(StepTypeStrategy::getStepName).collect(Collectors.joining(", ")),
                 workflow.getCompletedSteps().stream().map(StepTypeStrategy::getStepName).collect(Collectors.joining(", ")));
 
+        // 스텝 완료 처리
         workflow.completeStep(completedStep);
 
+        // 다음 스텝 가져오기
         Set<? extends StepTypeStrategy> nextSteps = completedStep.getNextSteps();
-        log.debug("Next steps from getNextSteps: {}",
+        log.debug("Next steps for {} are: {}",
+                completedStep.getStepName(),
                 nextSteps.stream().map(StepTypeStrategy::getStepName).collect(Collectors.joining(", ")));
 
+        // 실행 가능한 다음 스텝들 찾기
         Set<StepTypeStrategy> executableSteps = nextSteps.stream()
                 .filter(step -> step.canStart(workflow.getCompletedSteps()))
                 .collect(Collectors.toSet());
 
-        log.debug("Filtered executable steps: {}",
+        log.debug("Executable steps: {}",
                 executableSteps.stream().map(StepTypeStrategy::getStepName).collect(Collectors.joining(", ")));
 
-        executableSteps.forEach(step -> {
-            workflow.startStep(step);
-            log.debug("Starting step {} for workflow {}",
-                    step.getStepName(), workflowId);
-            stepRequestPublisher.publishStepRequest(workflow);
-            log.debug("Published request for step {} of workflow {}",
-                    step.getStepName(), workflowId);
-        });
+        // 다음 스텝들 시작
+        for (StepTypeStrategy nextStep : executableSteps) {
+            log.info("Starting next step: {} for workflow: {}", nextStep.getStepName(), workflowId);
+            workflow.startStep(nextStep);
 
-        log.debug("After update - Active steps: {}, Completed steps: {}",
+            // 각 스텝에 대해 이벤트 발행
+            log.info("Publishing request for step: {} of workflow: {}", nextStep.getStepName(), workflowId);
+            stepRequestPublisher.publishStepRequest(workflow);
+        }
+
+        log.debug("After completion - Active steps: {}, Completed steps: {}",
                 workflow.getActiveSteps().stream().map(StepTypeStrategy::getStepName).collect(Collectors.joining(", ")),
                 workflow.getCompletedSteps().stream().map(StepTypeStrategy::getStepName).collect(Collectors.joining(", ")));
 
+        // 워크플로우 상태 저장
         workflowRepository.save(workflowMapper.toEntity(workflow));
     }
 

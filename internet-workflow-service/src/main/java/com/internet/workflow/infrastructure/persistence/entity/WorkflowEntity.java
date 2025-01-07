@@ -1,6 +1,8 @@
-package com.iptv.workflow.infrastructure.persistence.entity;
+// File: myprj6/workflow-service/src/main/java/com/workflow/infrastructure/persistence/entity/WorkflowEntity.java
+package com.internet.workflow.infrastructure.persistence.entity;
 
-import com.iptv.workflow.domain.model.workflow.WorkflowStatus;
+import com.internet.workflow.domain.model.workflow.WorkflowStatus;
+import com.workflow.common.event.StepType;
 import com.workflow.common.persistence.converter.StepTypeStrategyConverter;
 import com.workflow.common.step.StepTypeStrategy;
 import jakarta.persistence.*;
@@ -10,13 +12,10 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
-@Table(name = "tbl_iptv_workflow")
+@Table(name = "tbl_internet_workflow")
 @Getter
 @Setter
 public class WorkflowEntity {
@@ -36,7 +35,7 @@ public class WorkflowEntity {
 
    @ElementCollection(targetClass = StepTypeStrategy.class)
    @CollectionTable(
-           name = "tbl_iptv_workflow_active_step",
+           name = "tbl_internet_workflow_active_step",
            joinColumns = @JoinColumn(name = "workflow_id")
    )
    @Column(name = "step_type")
@@ -45,7 +44,7 @@ public class WorkflowEntity {
 
    @ElementCollection(targetClass = StepTypeStrategy.class)
    @CollectionTable(
-           name = "tbl_iptv_workflow_completed_step",
+           name = "tbl_internet_workflow_completed_step",
            joinColumns = @JoinColumn(name = "workflow_id")
    )
    @Column(name = "step_type")

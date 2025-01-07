@@ -1,17 +1,18 @@
-package com.iptv.workflow.infrastructure.persistence.entity;
+// File: myprj6/workflow-service/src/main/java/com/workflow/infrastructure/persistence/entity/StepHistoryEntity.java
+package com.internet.workflow.infrastructure.persistence.entity;
 
+import com.workflow.common.event.StepType;
 import com.workflow.common.persistence.converter.StepTypeStrategyConverter;
 import com.workflow.common.step.StepTypeStrategy;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "tbl_iptv_step_history")
+@Table(name = "tbl_internet_step_history")
 @Getter
 @Setter
 @NoArgsConstructor

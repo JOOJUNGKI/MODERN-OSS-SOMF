@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: workflow-service
+    name: internet-workflow-service
   kafka:
     bootstrap-servers: localhost:29092
     consumer:
@@ -39,12 +39,9 @@ spring:
 
 kafka:
   topics:
-    creation:
-      request: ${KAFKA_TOPIC_CREATION_REQUEST:workflow.creation.request}
     internet:
-      step:
-        request: ${KAFKA_TOPIC_INTERNET_STEP_REQUEST:workflow.internet.step.acquisition.request}
-        response: ${KAFKA_TOPIC_INTERNET_STEP_RESPONSE:workflow.internet.step.acquisition.response}
+      creation:
+        request: ${KAFKA_TOPIC_INTERNET_CREATION_REQUEST:workflow.internet.creation.request}
 
 spring-doc:
   api-docs:
@@ -53,6 +50,11 @@ spring-doc:
     path: /swagger-ui.html
     try-it-out-enabled: true
 
+#logging:
+#  level:
+#    com.workflow: ${LOG_LEVEL:DEBUG}
+
 logging:
   level:
-    com.workflow: ${LOG_LEVEL:DEBUG}
+    com.workflow: DEBUG
+    com.internet.workflow: DEBUG
