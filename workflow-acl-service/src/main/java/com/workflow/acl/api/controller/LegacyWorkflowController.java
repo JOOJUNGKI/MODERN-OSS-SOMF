@@ -33,4 +33,10 @@ public class LegacyWorkflowController {
         return ResponseEntity.accepted()
             .body(Map.of("requestId", requestId, "message", "요청이 접수되었습니다."));
     }
+
+    @PostMapping("/test")
+    @Operation(summary = "테스트")
+    public ResponseEntity<?> test() {
+        return ResponseEntity.ok("호출");
+    }
 }
