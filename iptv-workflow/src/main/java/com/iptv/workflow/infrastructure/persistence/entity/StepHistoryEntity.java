@@ -11,7 +11,7 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "tbl_iptv_step_histories")
+@Table(name = "tbl_iptv_step_history")
 @Getter
 @Setter
 @NoArgsConstructor

@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
-@Table(name = "workflows")
+@Table(name = "tbl_iptv_workflow")
 @Getter
 @Setter
 public class WorkflowEntity {
@@ -36,7 +36,7 @@ public class WorkflowEntity {
 
    @ElementCollection(targetClass = StepTypeStrategy.class)
    @CollectionTable(
-           name = "workflow_active_steps",
+           name = "tbl_iptv_workflow_active_step",
            joinColumns = @JoinColumn(name = "workflow_id")
    )
    @Column(name = "step_type")
@@ -45,7 +45,7 @@ public class WorkflowEntity {
 
    @ElementCollection(targetClass = StepTypeStrategy.class)
    @CollectionTable(
-           name = "workflow_completed_steps",
+           name = "tbl_iptv_workflow_completed_step",
            joinColumns = @JoinColumn(name = "workflow_id")
    )
    @Column(name = "step_type")

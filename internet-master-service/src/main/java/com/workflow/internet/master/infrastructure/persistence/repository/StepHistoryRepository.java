@@ -1,6 +1,7 @@
 package com.workflow.internet.master.infrastructure.persistence.repository;
 
 import com.workflow.common.event.StepType;
+import com.workflow.common.step.StepTypeStrategy;
 import com.workflow.internet.master.infrastructure.persistence.entity.StepHistoryEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -11,5 +12,5 @@ import java.util.Optional;
 public interface StepHistoryRepository extends JpaRepository<StepHistoryEntity, Long> {
     Optional<StepHistoryEntity> findByOrderNumber(String orderNumber);
 
-    Optional<StepHistoryEntity> findByWorkflowIdAndStepType(String workflowId, StepType stepType);
+    Optional<StepHistoryEntity> findByWorkflowIdAndStepType(String workflowId, StepTypeStrategy stepType);
 }

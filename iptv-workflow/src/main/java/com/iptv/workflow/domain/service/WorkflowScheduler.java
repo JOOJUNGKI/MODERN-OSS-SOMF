@@ -34,11 +34,9 @@ public class WorkflowScheduler {
 
     @Transactional
     public void scheduleWorkflow(WorkflowCreationEvent event) {
-        log.debug("Creating new workflow for event: {}", event);
+        log.info("Creating new workflow for event: {}", event);
 
         ServiceType serviceType = ServiceType.fromCode(event.getServiceType());
-        StepTypeStrategy initialStep = getInitialStep(serviceType);
-
         final Workflow workflow = Workflow.create(
                 event.getOrderNumber(),
                 event.getOrderSeq(),

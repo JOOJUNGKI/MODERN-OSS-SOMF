@@ -22,12 +22,12 @@ def getChangedServices() {
                     // 'internet-facility-service',
                     // 'internet-master-service',
                     // 'internet-site-service',
-                    'iptv-acquisition-service',
-                    'iptv-certification-service',
-                    'iptv-completion-service',
-                    'iptv-master-service',
-                    'iptv-site-service',
-                    'iptv-workflow'
+                    //'iptv-acquisition-service',
+                    //'iptv-certification-service',
+                    //'iptv-completion-service',
+                    //'iptv-master-service',
+                    //'iptv-site-service',
+                    //'iptv-workflow'
                 ]
     
     // 파라미터가 1이면 모든 서비스 반환
