@@ -1,0 +1,11 @@
+FROM eclipse-temurin:17-jdk-alpine as builder
+WORKDIR /app
+COPY . .
+RUN ./gradlew :iptv-workflow-service:bootJar
+
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+COPY --from=builder /app/iptv-workflow-service/build/libs/*.jar app.jar
+EXPOSE 8080
+ENV SPRING_PROFILES_ACTIVE=dev
+ENTRYPOINT ["java", "-Dspring.profiles.active=dev", "-jar", "app.jar"]
