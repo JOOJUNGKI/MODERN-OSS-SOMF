@@ -4,13 +4,11 @@ server:
     context-path: /
 
 spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
   application:
     name: workflow-acl-service
-  datasource:
-    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/workflow_db}
-    username: ${POSTGRES_USER:postgres}
-    password: ${POSTGRES_PASSWORD:password}
-    driver-class-name: org.postgresql.Driver
   kafka:
     bootstrap-servers: localhost:29092
     producer:
